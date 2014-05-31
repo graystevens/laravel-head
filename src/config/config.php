@@ -35,4 +35,16 @@ return array(
 		'image' => '',
 	),
 
+	'twitter' => array(
+
+		'active' => true,
+
+		'image' => '',
+
+		'site' => '',
+
+		'creator' => '',
+
+	),
+
 );

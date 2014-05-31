@@ -123,6 +123,8 @@ class LaravelHead {
 
 		$this->addFacebook();
 
+		$this->addTwitter();
+
 		foreach ($this->meta as $type => $val)
 		{
 			if ($type == 'name' || $type == 'http-equiv' || $type == 'property')
@@ -214,7 +216,7 @@ class LaravelHead {
 	{
 		$sitename = Config::get('laravel-head::title.sitename');
 
-		$title = ($this->title) ? $this->title : $sitename;
+		$title = $this->renderTitle();
 
 		$description = $this->description;
 
@@ -243,7 +245,7 @@ class LaravelHead {
 				$this->addOneMeta('property', 'fb:admins', $admins);
 			}
 
-			if (!array_key_exists('property', $this->meta) || !array_key_exists('og:image', $this->meta['property']))
+			if (File::isFile(public_path($image) && !array_key_exists('property', $this->meta) || !array_key_exists('og:image', $this->meta['property'])))
 			{
 				$this->addOneMeta('property', 'og:image', asset($image));
 			}
@@ -293,6 +295,78 @@ class LaravelHead {
 					if (starts_with($value, 'og:') || starts_with($value, 'fb:'))
 					{
 						$this->meta['property'] = array_except($this->meta['property'], array($value));
+					}
+				}
+			}
+		}
+	}
+
+	public function addTwitter()
+	{
+		$title = $this->renderTitle();
+
+		$description = $this->description;
+
+		$image = Config::get('laravel-head::twitter.image');
+
+		$site = Config::get('laravel-head::twitter.site');
+
+		$creator = Config::get('laravel-head::twitter.creator');
+
+		if (Config::get('laravel-head::twitter.active'))
+		{
+			$this->addOneMeta('name', 'twitter:card', 'summary');
+
+			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:title', $this->meta['property']))
+			{
+				$this->addOneMeta('name', 'twitter:title', $title);
+			}
+
+			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:description', $this->meta['property']))
+			{
+				$this->addOneMeta('name', 'twitter:description', $description);
+			}
+
+			if (File::isFile(public_path($image)) && (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:image:src', $this->meta['property'])))
+			{
+				$this->addOneMeta('name', 'twitter:image:src', asset($image));
+			}
+
+			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:site', $this->meta['property']))
+			{
+				$this->addOneMeta('name', 'twitter:site', $site);
+			}
+
+			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:creator', $this->meta['property']))
+			{
+				$this->addOneMeta('name', 'twitter:creator', $creator);
+			}
+
+			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:url', $this->meta['property']))
+			{
+				$this->addOneMeta('name', 'twitter:url', URL::current());
+			}
+		}
+	}
+
+	public function doTwitter()
+	{
+		Config::set('laravel-head::twitter.active', true);
+	}
+
+	public function noTwitter()
+	{
+		Config::set('laravel-head::twitter.active', false);
+
+		foreach ($this->meta as $type => $val)
+		{
+			if (array_key_exists('name', $this->meta))
+			{
+				foreach ($val as $value => $content)
+				{
+					if (starts_with($value, 'twitter:') || starts_with($value, 'twitter:'))
+					{
+						$this->meta['name'] = array_except($this->meta['name'], array($value));
 					}
 				}
 			}
