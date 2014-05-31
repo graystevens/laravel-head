@@ -22,4 +22,17 @@ return array(
 
 	'responsive' => true,
 
+	'facebook' => array(
+
+		'active' => false,
+
+		'page_id' => '',
+
+		'app_id' => '',
+
+		'admins' => '',
+
+		'image' => '',
+	),
+
 );

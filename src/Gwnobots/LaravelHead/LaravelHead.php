@@ -2,12 +2,16 @@
 
 use App;
 use Config;
+use File;
+use URL;
  
 class LaravelHead {
 
 	protected $charset;
 
 	protected $title;
+
+	protected $description;
 
 	protected $meta = array();
 
@@ -16,6 +20,7 @@ class LaravelHead {
 		return 
 			$this->tagCharset().
 			$this->tagTitle().
+			$this->tagDescription().
 			$this->tagMeta()
 		;
 	}
@@ -112,11 +117,11 @@ class LaravelHead {
 
 		$this->addRobots();
 
-		$this->addDescription();
-
 		$this->addIeEdge();
 
 		$this->addResponsive();
+
+		$this->addFacebook();
 
 		foreach ($this->meta as $type => $val)
 		{
@@ -150,14 +155,16 @@ class LaravelHead {
 
 	public function setDescription($description)
 	{
-		$this->addOneMeta('name', 'description', $description);
+		$this->description = $description;
 	}
 
-	protected function addDescription()
+	protected function tagDescription()
 	{
-		if (!array_key_exists('name', $this->meta) || !array_key_exists('description', $this->meta['name']))
+		$description = $this->description;
+
+		if ($description)
 		{
-			$this->addOneMeta('name', 'description', Config::get('laravel-head::description'));
+			return '<meta name="description" content="'.$description.'">' . "\n\t";
 		}
 	}
 
@@ -201,6 +208,95 @@ class LaravelHead {
 	public function noResponsive()
 	{
 		Config::set('laravel-head::responsive', false);
+	}
+
+	public function addFacebook()
+	{
+		$sitename = Config::get('laravel-head::title.sitename');
+
+		$title = ($this->title) ? $this->title : $sitename;
+
+		$description = $this->description;
+
+		$admins = Config::get('laravel-head::facebook.admins');
+
+		$page_id =Config::get('laravel-head::facebook.page_id');
+
+		$app_id = Config::get('laravel-head::facebook.app_id');
+
+		$image = Config::get('laravel-head::facebook.image');
+
+		if (Config::get('laravel-head::facebook.active'))
+		{
+			if (!array_key_exists('property', $this->meta) || !array_key_exists('fb:page_id', $this->meta['property']))
+			{
+				$this->addOneMeta('property', 'fb:page_id', $page_id);
+			}
+
+			if (!array_key_exists('property', $this->meta) || !array_key_exists('fb:app_id', $this->meta['property']))
+			{
+				$this->addOneMeta('property', 'fb:app_id', $app_id);
+			}
+
+			if (!array_key_exists('property', $this->meta) || !array_key_exists('fb:admins', $this->meta['property']))
+			{
+				$this->addOneMeta('property', 'fb:admins', $admins);
+			}
+
+			if (!array_key_exists('property', $this->meta) || !array_key_exists('og:image', $this->meta['property']))
+			{
+				$this->addOneMeta('property', 'og:image', asset($image));
+			}
+
+			if (!array_key_exists('property', $this->meta) || !array_key_exists('og:url', $this->meta['property']))
+			{
+				$this->addOneMeta('property', 'og:url', URL::current());
+			}
+
+			if (!array_key_exists('property', $this->meta) || !array_key_exists('og:type', $this->meta['property']))
+			{
+				$this->addOneMeta('property', 'og:type', 'website');
+			}
+
+			if (!array_key_exists('property', $this->meta) || !array_key_exists('og:site_name', $this->meta['property']))
+			{
+				$this->addOneMeta('property', 'og:site_name', $sitename);
+			}
+
+			if (!array_key_exists('property', $this->meta) || !array_key_exists('og:title', $this->meta['property']))
+			{
+				$this->addOneMeta('property', 'og:title', $title);
+			}
+
+			if (!array_key_exists('property', $this->meta) || !array_key_exists('og:description', $this->meta['property']))
+			{
+				$this->addOneMeta('property', 'og:description', $description);
+			}
+		}
+	}
+
+	public function doFacebook()
+	{
+		Config::set('laravel-head::facebook.active', true);
+	}
+
+	public function noFacebook()
+	{
+		Config::set('laravel-head::facebook.active', false);
+
+		foreach ($this->meta as $type => $val)
+		{
+			if (array_key_exists('property', $this->meta))
+			{
+				foreach ($val as $value => $content)
+				{
+					if (starts_with($value, 'og:') || starts_with($value, 'fb:'))
+					{
+						$this->meta['property'] = array_except($this->meta['property'], array($value));
+					}
+				}
+			}
+		}
 	}
 
 }
