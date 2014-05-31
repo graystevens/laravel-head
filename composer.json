@@ -1,0 +1,25 @@
+{
+    "name": "gwnobots/laravel-head",
+    "description": "Manage head section of your layouts for Laravel",
+    "keywords": ["laravel", "layout", "meta tags", "stylesheets", "scripts", "opengraph", "twitter card", "analytics"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Gwen Nobots",
+            "email": "gwen@nobots.fr"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "illuminate/support": "4.1.*"
+    },
+    "autoload": {
+        "classmap": [
+            "src/migrations"
+        ],
+        "psr-0": {
+            "Gwnobots\\LaravelHead\\": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}
