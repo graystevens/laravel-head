@@ -16,4 +16,10 @@ return array(
 
 	),
 
+	'description' => '',
+
+	'ie_edge' => true,
+
+	'responsive' => true,
+
 );
