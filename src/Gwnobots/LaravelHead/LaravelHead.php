@@ -21,6 +21,8 @@ class LaravelHead {
 
 	protected $stylesheets = array();
 
+	protected $scripts = array();
+
 	protected $misc = array();
 
 	public function render()
@@ -31,7 +33,7 @@ class LaravelHead {
 			$this->tagDescription().
 			$this->tagMeta().
 			$this->tagLink().
-
+			$this->tagScript().
 			$this->tagMisc()
 		;
 	}
@@ -404,12 +406,64 @@ class LaravelHead {
 	{
 		$html = '';
 
+		$this->addShiv();
+
+		$this->addAnalytics();
+
  		foreach ($this->misc as $line)
  		{
  			$html .= $line . "\n\t";
  		}
 
  		return $html;
+	}
+
+ 	protected function addShiv()
+ 	{
+ 		if (Config::get('laravel-head::html5_shiv'))
+ 		{
+ 			$this->addMisc('<!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->');
+ 		}
+ 	}
+
+ 	protected function addAnalytics()
+ 	{
+ 		$id = Config::get('laravel-head::analytics.id');
+
+ 		$script = Config::get('laravel-head::analytics.script');
+
+ 		if (App::environment('production') && Config::get('laravel-head::analytics.active'))
+ 		{
+ 			if ($script)
+ 			{
+ 				$this->addMisc('<script>'.$script.'</script>');
+ 			}
+
+ 			elseif ($id)
+ 			{
+ 				$this->addMisc("<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create', '".$id."', 'auto');ga('send', 'pageview');</script>");
+ 			}
+ 		}
+ 	}
+
+ 	public function doShiv()
+	{
+		Config::set('laravel-head::html5_shiv', true);
+	}
+
+ 	public function noShiv()
+	{
+		Config::set('laravel-head::html5_shiv', false);
+	}
+
+	public function doAnalytics()
+	{
+		Config::set('laravel-head::analytics.active', true);
+	}
+
+	public function noAnalytics()
+	{
+		Config::set('laravel-head::analytics.active', false);
 	}
 
 	public function addLink($link = array())
@@ -560,52 +614,79 @@ class LaravelHead {
 		}
 	}
 
- 	protected function addShiv()
- 	{
- 		if (Config::get('laravel-head::html5_shiv'))
- 		{
- 			$this->addMisc('<!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->');
- 		}
- 	}
-
- 	protected function addAnalytics()
- 	{
- 		$id = Config::get('laravel-head::analytics.id');
-
- 		$script = Config::get('laravel-head::analytics.script');
-
- 		if (App::environment('production') && Config::get('laravel-head::analytics.active'))
- 		{
- 			if ($script)
- 			{
- 				$this->addMisc('<script>'.$script.'</script>');
- 			}
-
- 			elseif ($id)
- 			{
- 				$this->addMisc("<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create', '".$id."', 'auto');ga('send', 'pageview');</script>");
- 			}
- 		}
- 	}
-
- 	public function doShiv()
+	public function addScript($script = array())
 	{
-		Config::set('laravel-head::html5_shiv', true);
+		foreach ($script as $file => $options)
+		{
+			$this->scripts = array_add($this->scripts, $file, $options);
+		}
 	}
 
- 	public function noShiv()
+	public function addOneScript($file, $load = '', $cond = '')
 	{
-		Config::set('laravel-head::html5_shiv', false);
+		$this->addCss(array($file => array($load, $cond)));
 	}
 
-	public function doAnalytics()
+	protected function tagScript()
 	{
-		Config::set('laravel-head::analytics.active', true);
-	}
+		$html = '';
 
-	public function noAnalytics()
-	{
-		Config::set('laravel-head::analytics.active', false);
+		$path = '';
+
+		if (Config::get('laravel-head::assets.paths.js'))
+		{
+			$path = Config::get('laravel-head::assets.paths.js') . '/';
+		}
+
+		foreach ($this->scripts as $file => $options)
+		{
+			$start_cond = '';
+
+			$end_cond = '';
+
+			$load = '';
+
+			$cdn = Config::get('laravel-head::assets.cdn.'.$file);
+
+			$src = '';
+
+			if (is_string($options) && ($options == 'defer' || $options == 'async'))
+			{
+				$load = ' ' . $options;
+			}
+
+			elseif(is_array($options))
+			{
+				if (array_key_exists(1, $options) && $options[1])
+				{
+					$start_cond = '<!--[if '.$link[1].']>';
+					$end_cond = '<![endif]-->';
+				}
+
+				if (array_key_exists(0, $options) && ($options[0] == 'defer' || $options[0] == 'async'))
+				{
+					$load = ' ' . $options[0];
+				}
+			}
+
+			if ($cdn)
+			{
+				$src = $cdn;
+			}
+
+			elseif(File::exists(public_path($path.$file.'.js')))
+			{
+				$src = asset($path.$file.'.js');
+			}
+
+			if ($href)
+			{
+				$html .= $start_cond.'<script src="'.$src.'"'.$load.'></script>'.$end_cond;
+				$this->addOneLink('stylesheet', $href, '', array('media' => $media), $cond);
+			}
+		}
+
+		return $html;
 	}
 
 }
