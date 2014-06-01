@@ -33,6 +33,7 @@ return array(
 		'admins' => '',
 
 		'image' => '',
+
 	),
 
 	'twitter' => array(
@@ -56,6 +57,28 @@ return array(
 		'id' => '',
 
 		'script' => '',
+
+	),
+
+	'favicon' =>'',
+
+	'assets' => array(
+
+		'paths' => array(
+
+			'css' => '',
+
+			'js' => '',
+
+		),
+
+		'cdn' => array(
+
+			'jquery' => '',
+
+			'bootstrap' => '',
+			
+		),
 	),
 
 );

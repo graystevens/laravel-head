@@ -13,9 +13,15 @@ class LaravelHead {
 
 	protected $description;
 
+	protected $favicon;
+
 	protected $meta = array();
 
-	protected $misc;
+	protected $link = array();
+
+	protected $stylesheets = array();
+
+	protected $misc = array();
 
 	public function render()
 	{
@@ -24,6 +30,7 @@ class LaravelHead {
 			$this->tagTitle().
 			$this->tagDescription().
 			$this->tagMeta().
+			$this->tagLink().
 
 			$this->tagMisc()
 		;
@@ -377,20 +384,6 @@ class LaravelHead {
 		}
 	}
 
-	protected function tagMisc()
-	{
-		$html = '';
-
-		$this->addShiv();
-
- 		foreach ($this->misc as $line)
- 		{
- 			$html .= $line . "\n\t";
- 		}
-
- 		return $html;
-	}
-
 	public function addMisc($tag)
  	{
  		if (is_array($tag))
@@ -406,6 +399,166 @@ class LaravelHead {
  			array_push($this->misc, $tag);
  		}
  	}
+
+	protected function tagMisc()
+	{
+		$html = '';
+
+ 		foreach ($this->misc as $line)
+ 		{
+ 			$html .= $line . "\n\t";
+ 		}
+
+ 		return $html;
+	}
+
+	public function addLink($link = array())
+	{
+		$this->link = array_merge($this->link, $link);
+	}
+
+	public function addOneLink($rel, $href, $type = '', $attr = array(), $cond = '')
+	{
+		$this->addLink(array(array($rel, $href, $type, $attr, $cond)));
+	}
+
+	protected function tagLink()
+	{
+		$html = '';
+
+		$this->addFavicon();
+
+		$this->addStyleSheets();
+
+		foreach ($this->link as $link)
+		{
+			if (array_key_exists(1, $link) && $link[1] && array_key_exists(0, $link) && $link[0])
+			{
+				$start_cond = '';
+				$end_cond = '';
+
+				$attr = '';
+				$type = '';
+
+				if ($array_key_exists(4, $link) && $link[4])
+				{
+					$start_cond = '<!--[if '.$link[4].']>';
+					$end_cond = '<![endif]-->';
+				}
+
+				if (array_key_exists(3, $link) && is_array($link[3]))
+				{
+					foreach ($link[3] as $name => $content)
+					{
+						if ($name && $content)
+						{
+							$attr .= ' '.$name.'="'.$content.'"';
+						}
+					}
+				}
+
+				if (array_key_exists(2, $link) && $link[2])
+				{
+					$type = ' type="'.$link[2].'"';
+				}
+
+				$html .= $start_cond.'<link rel="'.$link[0].'" href="'.$link[1].'"'.$type.$attr.'>'.$end_cond . "\n\t";
+			}
+		}
+
+		return $html;
+	}
+
+	public function setFavicon($favicon)
+	{
+		$this->favicon = $favicon;
+	}
+
+	protected function addFavicon()
+	{
+		$favicon = ($this->favicon) ? $this->favicon : Config::get('laravel-head::favicon');
+
+		if ($favicon)
+		{
+			if (File::exists(public_path($favicon.'.ico')))
+			{
+				$this->addOneLink('shortcut icon', asset($favicon.'.ico'));
+				$this->addOneLink('icon', asset($favicon.'.ico'), 'image/x-icon');
+			}
+
+			if (File::exists(public_path($favicon.'.png')))
+			{
+				$this->addOneLink('icon', asset($favicon.'.png'), 'image/png');
+			}
+		}
+	}
+
+	public function addCss($css = array())
+	{
+		foreach ($css as $file => $options)
+		{
+			$this->stylesheets = array_add($this->stylesheets, $file, $options);
+		}
+	}
+
+	public function addOneCss($file, $media = '', $cond = '')
+	{
+		$this->addCss(array($file => array($media, $cond)));
+	}
+
+	protected function addStyleSheets()
+	{
+		$path = '';
+
+		if (Config::get('laravel-head::assets.paths.css'))
+		{
+			$path = Config::get('laravel-head::assets.paths.css') . '/';
+		}
+
+		foreach ($this->stylesheets as $file => $options)
+		{
+			$media = 'all';
+
+			$cond = '';
+
+			$cdn = Config::get('laravel-head::assets.cdn.'.$file);
+
+			$href = '';
+
+			if (is_string($options) && $options)
+			{
+				$media = $options;
+			}
+
+			elseif(is_array($options))
+			{
+				if (array_key_exists(1, $options) && $options[1])
+				{
+					$cond = $options[1];
+				}
+
+				if (array_key_exists(0, $options) && $options[0])
+				{
+					$media = $options[0];
+				}
+			}
+
+			if ($cdn)
+			{
+				$href = $cdn;
+			}
+
+			elseif(File::exists(public_path($path.$file.'.css')))
+			{
+				$href = asset($path.$file.'.css');
+			}
+
+			if ($href)
+			{
+				$this->addOneLink('stylesheet', $href, '', array('media' => $media), $cond);
+			}
+		}
+	}
 
  	protected function addShiv()
  	{
