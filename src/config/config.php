@@ -47,4 +47,15 @@ return array(
 
 	),
 
+	'html5_shiv' => true,
+
+	'analytics' => array(
+
+		'active' => true,
+
+		'id' => '',
+
+		'script' => '',
+	),
+
 );

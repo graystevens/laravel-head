@@ -15,13 +15,17 @@ class LaravelHead {
 
 	protected $meta = array();
 
+	protected $misc;
+
 	public function render()
 	{
 		return 
 			$this->tagCharset().
 			$this->tagTitle().
 			$this->tagDescription().
-			$this->tagMeta()
+			$this->tagMeta().
+
+			$this->tagMisc()
 		;
 	}
 
@@ -212,7 +216,7 @@ class LaravelHead {
 		Config::set('laravel-head::responsive', false);
 	}
 
-	public function addFacebook()
+	protected function addFacebook()
 	{
 		$sitename = Config::get('laravel-head::title.sitename');
 
@@ -301,7 +305,7 @@ class LaravelHead {
 		}
 	}
 
-	public function addTwitter()
+	protected function addTwitter()
 	{
 		$title = $this->renderTitle();
 
@@ -371,6 +375,84 @@ class LaravelHead {
 				}
 			}
 		}
+	}
+
+	protected function tagMisc()
+	{
+		$html = '';
+
+		$this->addShiv();
+
+ 		foreach ($this->misc as $line)
+ 		{
+ 			$html .= $line . "\n\t";
+ 		}
+
+ 		return $html;
+	}
+
+	public function addMisc($tag)
+ 	{
+ 		if (is_array($tag))
+ 		{
+ 			foreach ($tag as $line)
+ 			{
+ 				array_push($this->misc, $line);
+ 			}
+ 		}
+
+ 		elseif (is_string($tag))
+ 		{
+ 			array_push($this->misc, $tag);
+ 		}
+ 	}
+
+ 	protected function addShiv()
+ 	{
+ 		if (Config::get('laravel-head::html5_shiv'))
+ 		{
+ 			$this->addMisc('<!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->');
+ 		}
+ 	}
+
+ 	protected function addAnalytics()
+ 	{
+ 		$id = Config::get('laravel-head::analytics.id');
+
+ 		$script = Config::get('laravel-head::analytics.script');
+
+ 		if (App::environment('production') && Config::get('laravel-head::analytics.active'))
+ 		{
+ 			if ($script)
+ 			{
+ 				$this->addMisc('<script>'.$script.'</script>');
+ 			}
+
+ 			elseif ($id)
+ 			{
+ 				$this->addMisc("<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create', '".$id."', 'auto');ga('send', 'pageview');</script>");
+ 			}
+ 		}
+ 	}
+
+ 	public function doShiv()
+	{
+		Config::set('laravel-head::html5_shiv', true);
+	}
+
+ 	public function noShiv()
+	{
+		Config::set('laravel-head::html5_shiv', false);
+	}
+
+	public function doAnalytics()
+	{
+		Config::set('laravel-head::analytics.active', true);
+	}
+
+	public function noAnalytics()
+	{
+		Config::set('laravel-head::analytics.active', false);
 	}
 
 }
