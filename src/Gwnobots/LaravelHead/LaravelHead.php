@@ -34,8 +34,7 @@ class LaravelHead {
 			$this->tagMeta().
 			$this->tagLink().
 			$this->tagScript().
-			$this->tagMisc()
-		;
+			$this->tagMisc();
 	}
 
 	public function setCharset($charset)

@@ -6,9 +6,9 @@ return array(
 
 	'title' => array(
 
-		'sitename' => 'Sitename',
+		'sitename' => '',
 
-		'show_sitename' => true,
+		'show_sitename' => false,
 
 		'separator' => ' - ',
 
@@ -38,7 +38,7 @@ return array(
 
 	'twitter' => array(
 
-		'active' => true,
+		'active' => false,
 
 		'image' => '',
 
@@ -52,7 +52,7 @@ return array(
 
 	'analytics' => array(
 
-		'active' => true,
+		'active' => false,
 
 		'id' => '',
 
