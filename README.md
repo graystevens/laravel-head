@@ -26,7 +26,7 @@ After updating composer, add the ServiceProvider to the providers array in app/c
 
 You need to publish the config of this package:
 
-   $ php artisan config:publish gwnobots/laravel-head
+	$ php artisan config:publish gwnobots/laravel-head
 
 You do not need to add a Facade in app/config/app.php, as this package's Facade is already registered within its ServiceProvider (see posts from [Philip Brown](http://culttt.com/2013/06/24/creating-a-laravel-4-package/) and [Chris Fidao](http://fideloper.com/create-facade-laravel-4)).
 
