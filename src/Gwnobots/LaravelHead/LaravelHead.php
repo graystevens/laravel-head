@@ -72,7 +72,7 @@ class LaravelHead {
 
 
 /* =============================
-	RENDERS ALL TAGS IN HEAD
+	RENDER ALL TAGS IN HEAD
  ============================ */
 
 	/**
