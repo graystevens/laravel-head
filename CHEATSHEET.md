@@ -3,7 +3,7 @@
 ###### Render all tags
 	<head>
 		<?php echo Head::render(); ?>
-		// or
+		or
 		{{ Head::render() }}
 	</head>
 
