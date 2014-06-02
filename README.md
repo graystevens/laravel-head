@@ -32,6 +32,8 @@ You do not need to add a Facade in app/config/app.php, as this package's Facade 
 
 ## Usage
 
+You can see a summary of all available methods in the [cheatsheet](https://github.com/gwnobots/laravel-head/blob/master/CHEATSHEET).
+
 #### Rendering
 
 To display all custom tags in the `<head></head>` section, simply add in your layout:
@@ -45,7 +47,7 @@ To display all custom tags in the `<head></head>` section, simply add in your la
     	{{ Head::render() }}
     </head>
 
-#### Basic Settings
+#### Basic settings
 
 In package's config.php, you can set some default values like charset, sitename, description, favicon... (see comments in config.php for more explanations). These settings will be used if you don't override them for current requests with special methods (in your Routes or Controllers):
 
@@ -71,13 +73,13 @@ You can also remove a tag by filling it with blank, for example:
 
 #### Special utilities
 
-###### Search Engines
+###### Search engines
 
 By default, the `Head::render()` method will prevent your site from being crawled and indexed when not in production mode, by adding in your `<head></head>` section:
 
     <meta name="robots" content="none">
 
-###### Internet Explorer Compatibilty
+###### Internet Explorer compatibilty
 
 The `Head::render()` method can also automatically renders two commonly used tags for forcing IE compatibility. Set default values (boolean) in config.php for `'ie_edge' => true|false,` and `'html5_shiv' => true|false,` to display:
 
@@ -222,8 +224,6 @@ Overriding also works with special utilities like `<meta name="viewport">` or `<
 
 #### Link tags
 
-###### Basic usage
-
 You can set as many link tags as you need in your Routes or Controllers:
 
     Head::addLink(array(array('rel', 'href', 'type', array('attr' => 'value'), 'condition')));
@@ -246,8 +246,76 @@ If you need to add only one link tag, you can also use:
 
     Head::addOneLink('rel', 'href', 'type', array('attr' => 'value'), 'condition');
 
+You cannot override a link tag contrary to meta tags.
 
+#### Stylesheets
 
+###### Basic usage
 
+You can set as many stylesheets as you need in your Routes or Controllers:
 
+    Head::addCss(array('file' => 'media'));
 
+By default, if you let it blank, media is set to 'all'. If you need conditional comment, you can also use:
+
+    Head::addCss(array('file' => array('media', 'condition')));
+
+For example
+
+    Head::addCss(array(
+    	'firstfile' => 'screen and (min-width:480px)',
+    	'secondfile' => array('', 'lt IE 9'),
+    ));
+
+will render
+
+    <link rel="stylesheet" media="screen and (min-width:480px)" href="http://domain.com/firstfile.css">
+    <!--[if lt IE 9]><link rel="stylesheet" media="all" href="http://domain.com/secondfile.css"><![endif]-->
+
+You can also add only one stylesheet:
+
+    Head::addOneCss('file', 'media', 'condition');
+
+where media and condition are optional. If file does not exist, the tag will not be displayed.
+
+###### Settings and external resources
+
+In config.php, you can define a default path for .css files (assets -> paths -> css), relative to public path. So when adding a stylesheet you should use the file's path and name (without extension) from this default one.
+
+You can also load external resources defined in config.php (assets -> cdn). You must use the same name for cdn's in config.php and when adding a stylesheet.
+
+You cannot override a stylesheet: stylesheets are rendered only if they have not already been added, so be careful with dependencies.
+
+#### Scripts
+
+Scripts are managed the same way as stylesheets:
+
+    Head::addScript(array('file' => 'load'));
+    Head::addScript(array('file' => array('load', 'condition')));
+    Head::addOneScript('file', 'load', 'condition');
+
+Load only accept blank, 'defer' or 'async' as values. Load and condition are optional. You can also set path and cdn's in config.php.
+
+#### Google's Universal Analytics
+
+You can automatically add new Google's Universal Analytics at the end of the `<head></head>` section by setting analytics' active to true in config.php. Don't forget to add your Product ID. The script will not be displayed if not in production mode. By default, Universal Analytics script load asynchronously.
+
+You can also override the script by filling analytics' script in config.php, for example if you use custom methods, or another service provider: paste the complete script, including the `<script></script>` tags.
+
+You can de|activate the script for current requests with:
+
+    Head:noAnalytics();
+    Head:doAnalytics();
+
+#### Miscellaneous
+
+You can add any additional tags, or custom code like comments, at the end of the `<head></head>` section with:
+
+    // several additions
+    Head::addMisc(array('First additional code', 'Second additional code', ...));
+    // or only one addition
+    Head::addMisc('My additional code');
+
+## Cheat Sheet
+
+Go to a summary of all [available methods](https://github.com/gwnobots/laravel-head/blob/master/CHEATSHEET).

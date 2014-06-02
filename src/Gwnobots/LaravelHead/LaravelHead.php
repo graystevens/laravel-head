@@ -639,7 +639,7 @@ class LaravelHead {
 
 	public function addOneScript($file, $load = '', $cond = '')
 	{
-		$this->addCss(array($file => array($load, $cond)));
+		$this->addScript(array($file => array($load, $cond)));
 	}
 
 	protected function tagScript()
