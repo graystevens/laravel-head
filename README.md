@@ -32,7 +32,7 @@ You do not need to add a Facade in app/config/app.php, as this package's Facade 
 
 ## Usage
 
-You can see a summary of all available methods in the [cheatsheet](https://github.com/gwnobots/laravel-head/blob/master/CHEATSHEET).
+You can see a summary of all available methods in the [cheatsheet](https://github.com/gwnobots/laravel-head/blob/master/CHEATSHEET.md).
 
 #### Rendering
 
@@ -318,4 +318,4 @@ You can add any additional tags, or custom code like comments, at the end of the
 
 ## Cheat Sheet
 
-Go to a summary of all [available methods](https://github.com/gwnobots/laravel-head/blob/master/CHEATSHEET).
+Go to a summary of all [available methods](https://github.com/gwnobots/laravel-head/blob/master/CHEATSHEET.md).
