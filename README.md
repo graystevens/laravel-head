@@ -65,6 +65,10 @@ In package's config.php, you can set some default values like charset, sitename,
     // define a favicon for <link rel=""> tags (relative to public path, without extension)
     Head::setFavicon('favicon');
 
+You can also remove a tag by filling it with blank, for example:
+
+    Head::setFavicon('');
+
 #### Special utilities
 
 ###### Search Engines
@@ -215,5 +219,35 @@ It is possible to remove a meta tag for a particular request by filling it with 
     Head::addOneMeta('name', 'author', '');
 
 Overriding also works with special utilities like `<meta name="viewport">` or `<meta http-equiv="X-UA-Compatible">`, but not with `<meta name="description">` that works apart.
+
+#### Link tags
+
+###### Basic usage
+
+You can set as many link tags as you need in your Routes or Controllers:
+
+    Head::addLink(array(array('rel', 'href', 'type', array('attr' => 'value'), 'condition')));
+
+Type, Attributes and Condition are optionals. Condition stands for conditional comments (see [Stylesheets](https://github.com/gwnobots/laravel-head#stylesheets) for more explanation).
+
+For example
+
+    Head::addLink(array(
+    	array('canonical', 'http://domain.com/whatyouwant'),
+    	array('alternate', 'http://url-to-your-feed', 'application/rss+xml', array('title' => 'RSS')),
+    ));
+
+will render:
+
+    <link rel="canonical" href="http://domain.com/whatyouwant">
+    <link rel="alternate" content="http://url-to-your-feed" type="application/rss+xml" title="RSS">
+
+If you need to add only one link tag, you can also use:
+
+    Head::addOneLink('rel', 'href', 'type', array('attr' => 'value'), 'condition');
+
+
+
+
 
 
