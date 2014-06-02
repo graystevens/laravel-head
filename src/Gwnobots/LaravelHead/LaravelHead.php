@@ -7,24 +7,80 @@ use URL;
  
 class LaravelHead {
 
+	/**
+	 * The value for meta charset tag
+	 * 
+	 * @var string
+	 */ 
 	protected $charset;
 
+	/**
+	 * The value for title tag
+	 * 
+	 * @var string
+	 */ 
 	protected $title;
 
+	/**
+	 * The value for description meta tag
+	 * 
+	 * @var string
+	 */ 
 	protected $description;
 
+	/**
+	 * The name of favicon file(s)
+	 * 
+	 * @var string
+	 */ 
 	protected $favicon;
 
+	/**
+	 * Contains all meta tags
+	 * 
+	 * @var array
+	 */ 
 	protected $meta = array();
 
+	/**
+	 * Contains all link tags
+	 * 
+	 * @var array
+	 */
 	protected $link = array();
 
+	/**
+	 * Contains all stylesheets
+	 * 
+	 * @var array
+	 */ 
 	protected $stylesheets = array();
 
+	/**
+	 * Contains all scripts
+	 * 
+	 * @var array
+	 */ 
 	protected $scripts = array();
 
+	/**
+	 * Contains all additional items
+	 * 
+	 * @var array
+	 */ 
 	protected $misc = array();
 
+
+/* =============================
+	RENDERS ALL TAGS IN HEAD
+ ============================ */
+
+	/**
+	 * Render all tags manually or automatically defined for filling head section.
+	 * Empty values don't return any tag.
+	 *
+	 * @return void
+	 */ 
 	public function render()
 	{
 		return 
@@ -37,155 +93,282 @@ class LaravelHead {
 			$this->tagMisc();
 	}
 
-	public function setCharset($charset)
-	{
-		$this->charset = $charset;
-	}
 
+/* =============================
+	ENCODING
+ ============================ */
+
+ 	/**
+	 * Render meta charset tag.
+	 *
+	 * @return string
+	 */ 
 	protected function tagCharset()
 	{
+		// Get the default value in config file if not manually defined
 		$charset = ($this->charset) ? $this->charset : Config::get('laravel-head::charset');
 		
+		// Don't return any tag if value is empty
 		if ($charset)
 		{
 			return '<meta charset="'.$charset.'">' . "\n\t";
 		}
 	}
 
-	public function setTitle($title)
+	/**
+	 * Manually set a value for meta charset tag for the current request.
+	 * 
+	 * @param string $charset
+	 *
+	 * @return void
+	 */ 
+	public function setCharset($charset)
 	{
-		$this->title = $title;
+		$this->charset = $charset;
 	}
 
-	public function doSitename()
-	{
-		Config::set('laravel-head::title.sitename', true);
-	}
 
-	public function noSitename()
-	{
-		Config::set('laravel-head::title.sitename', false);
-	}
+/* =============================
+	TITLE TAG
+ ============================ */
 
-	protected function renderTitle()
-	{
-		$sitename = Config::get('laravel-head::title.sitename');
-
-		$title = ($this->title) ? $this->title : $sitename;
-				
-		$separator = Config::get('laravel-head::title.separator');
-
-		$show = Config::get('laravel-head::title.show_sitename');
-
-		$first = Config::get('laravel-head::title.first');
-
-		if ($show)
-		{
-			if ($sitename == $title)
-			{
-				return $sitename;
-			}
-			
-			elseif (!$sitename)
-			{
-				return $title;
-			}
-		
-			elseif (!$title)
-			{
-				return $sitename;
-			}
-		
-			else
-			{
-				return ($first) ? $title.$separator.$sitename : $sitename.$separator.$title;
-			}
-		}
-
-		else
-		{
-			return $title;
-		}
-	}
-
+ 	/**
+	 * Render title tag.
+	 *
+	 * @return string
+	 */ 
 	protected function tagTitle()
 	{
+		// Get the complete value for title
 		$title = $this->renderTitle();
 
+		// Don't return any tag if value is empty
 		if ($title)
 		{
 			return '<title>'.$title.'</title>' . "\n\t";
 		}
 	}
 
-	public function addMeta($meta = array())
+	/**
+	 * Return the complete value for title.
+	 *
+	 * @return string
+	 */ 
+	protected function renderTitle()
 	{
-		$this->meta = array_merge($this->meta, $meta);
-	}
+		// Get default value for site name
+		$sitename = Config::get('laravel-head::title.sitename');
 
-	protected function tagMeta()
-	{
-		$html = '';
+		// Value for title, site name if not defined
+		$title = ($this->title) ? $this->title : $sitename;
+		
+		// Get default separator value
+		$separator = Config::get('laravel-head::title.separator');
 
-		$this->addRobots();
+		// Should title show site name
+		$show = Config::get('laravel-head::title.show_sitename');
 
-		$this->addIeEdge();
+		// Get title position
+		$first = Config::get('laravel-head::title.first');
 
-		$this->addResponsive();
-
-		$this->addFacebook();
-
-		$this->addTwitter();
-
-		foreach ($this->meta as $type => $val)
+		// Show site name in title
+		if ($show)
 		{
-			if ($type == 'name' || $type == 'http-equiv' || $type == 'property')
+			// Site name and title values are the same
+			if ($sitename == $title)
 			{
-				foreach ($val as $value => $content)
-				{
-					if ($value && $content)
-					{
-						$html .= '<meta '.$type.'="'.$value.'" content="'.$content.'">' . "\n\t";
-					}
-				}
+				return $sitename;
+			}
+			
+			// No site name is defined
+			elseif (!$sitename)
+			{
+				return $title;
+			}
+			
+			// No title is defined
+			elseif (!$title)
+			{
+				return $sitename;
+			}
+		
+			// Get complete title
+			else
+			{
+				return ($first) ? $title.$separator.$sitename : $sitename.$separator.$title;
 			}
 		}
 
-		return $html;
-	}
-
-	public function addOneMeta($type, $value, $content)
-	{
-		$this->meta[$type][$value] = $content;
-	}
-
-	protected function addRobots()
-	{
-		if (!App::environment('production'))
+		// Don't show site name in title
+		else
 		{
-			$this->addOneMeta('name', 'robots', 'none');
+			return $title;
 		}
 	}
 
-	public function setDescription($description)
+	/**
+	 * Activate Site Name for the current request.
+	 *
+	 * @return void
+	 */ 
+	public function doSitename()
 	{
-		$this->description = $description;
+		Config::set('laravel-head::title.sitename', true);
 	}
 
+	/**
+	 * Deactivate Site Name for the current request.
+	 *
+	 * @return void
+	 */ 
+	public function noSitename()
+	{
+		Config::set('laravel-head::title.sitename', false);
+	}
+
+	/**
+	 * Manually set a value for the title for the current request.
+	 * 
+	 * @param string $title
+	 *
+	 * @return void
+	 */
+	public function setTitle($title)
+	{
+		$this->title = $title;
+	}
+
+
+/* =============================
+	DESCRIPTION META TAG
+ ============================ */
+
+	/**
+	 * Render description meta tag.
+	 *
+	 * @return string
+	 */
 	protected function tagDescription()
 	{
-		$description = $this->description;
+		// Get the default value in config file if not manually defined
+		$description = ($this->description) ? $this->description : Config::get('laravel-head::description');
 
+		// Don't return any tag if value is empty
 		if ($description)
 		{
 			return '<meta name="description" content="'.$description.'">' . "\n\t";
 		}
 	}
 
+	/**
+	 * Manually set a value for description for the current request.
+	 * 
+	 * @param string $description
+	 *
+	 * @return void
+	 */
+	public function setDescription($description)
+	{
+		$this->description = $description;
+	}
+
+
+/* =============================
+	META TAGS
+ ============================ */
+
+ 	/**
+	 * Render all meta tags.
+	 *
+	 * @return string
+	 */ 
+	protected function tagMeta()
+	{
+		// Initialize string
+		$html = '';
+
+		// Prevent robots from crawling and indexing the site if not in production mode
+		$this->addRobots();
+
+		// Force IE compatibility if option is active
+		$this->addIeEdge();
+
+		// Add viewport meta tag for responsive design if option is active
+		$this->addResponsive();
+
+		// Add tags for Open Graph if option is active
+		$this->addFacebook();
+
+		// Add tags for Twitter Card if option is active
+		$this->addTwitter();
+
+		// Add all manually defined meta tags
+		foreach ($this->meta as $type => $val)
+		{
+			// Check if type is valid
+			if ($type == 'name' || $type == 'http-equiv' || $type == 'property')
+			{
+				foreach ($val as $value => $content)
+				{
+					// Check if values are defined
+					if ($value && $content)
+					{
+						// Return tag for each registered meta
+						$html .= '<meta '.$type.'="'.$value.'" content="'.$content.'">' . "\n\t";
+					}
+				}
+			}
+		}
+
+		// Return complete string
+		return $html;
+	}
+
+	/**
+	 * Register several meta tags.
+	 *
+	 * @return void
+	 */ 
+	public function addMeta($meta = array())
+	{
+		$this->meta = array_merge($this->meta, $meta);
+	}
+
+	/**
+	 * Register only one meta tag.
+	 *
+	 * @return void
+	 */ 
+	public function addOneMeta($type, $value, $content)
+	{
+		$this->addMeta(array($type => array($value => $content)));
+	}
+
+	/**
+	 * Register robots meta tag.
+	 *
+	 * @return void
+	 */ 
+	protected function addRobots()
+	{
+		// Check for production mode
+		if (!App::environment('production'))
+		{
+			$this->addOneMeta('name', 'robots', 'none');
+		}
+	}
+
+	/**
+	 * Register IE Edge meta tag.
+	 *
+	 * @return void
+	 */ 
 	protected function addIeEdge()
 	{
+		// Check if option is active
 		if (Config::get('laravel-head::ie_edge'))
 		{
+			// Don't override a value set manually
 			if (!array_key_exists('http-equiv', $this->meta) || !array_key_exists('X-UA-Compatible', $this->meta['http-equiv']))
 			{
 				$this->addOneMeta('http-equiv', 'X-UA-Compatible', 'IE=edge,chrome=1');
@@ -193,20 +376,37 @@ class LaravelHead {
 		}
 	}
 
-	public function noIeEdge()
-	{
-		Config::set('laravel-head::ie_edge', false);
-	}
-
+	/**
+	 * Activate IE Edge for the current request.
+	 *
+	 * @return void
+	 */
 	public function doIeEdge()
 	{
 		Config::set('laravel-head::ie_edge', true);
 	}
 
+	/**
+	 * Deactivate IE Edge for the current request.
+	 *
+	 * @return void
+	 */
+	public function noIeEdge()
+	{
+		Config::set('laravel-head::ie_edge', false);
+	}
+
+	/**
+	 * Register Viewport meta tag for responsive design.
+	 *
+	 * @return void
+	 */ 
 	protected function addResponsive()
 	{
+		// Check if option is active
 		if (Config::get('laravel-head::responsive'))
 		{
+			// Don't override a value set manually
 			if (!array_key_exists('name', $this->meta) || !array_key_exists('viewport', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'viewport', 'width=device-width, initial-scale=1.0');
@@ -214,96 +414,118 @@ class LaravelHead {
 		}
 	}
 
+	/**
+	 * Activate Viewport for the current request.
+	 *
+	 * @return void
+	 */
 	public function doResponsive()
 	{
 		Config::set('laravel-head::responsive', true);
 	}
 
+	/**
+	 * Deactivate Viewport for the current request.
+	 *
+	 * @return void
+	 */
 	public function noResponsive()
 	{
 		Config::set('laravel-head::responsive', false);
 	}
 
+	/**
+	 * Register Open Graph meta tags.
+	 *
+	 * @return void
+	 */ 
 	protected function addFacebook()
 	{
+		// Get default Site Name
 		$sitename = Config::get('laravel-head::title.sitename');
 
+		// Get value for title tag
 		$title = $this->renderTitle();
 
-		$description = $this->description;
+		// Get value of description
+		$description = ($this->description) ? $this->description : Config::get('laravel-head::description');
 
+		// Get Default values in config file
 		$admins = Config::get('laravel-head::facebook.admins');
-
 		$page_id =Config::get('laravel-head::facebook.page_id');
-
 		$app_id = Config::get('laravel-head::facebook.app_id');
-
 		$image = Config::get('laravel-head::facebook.image');
 
+		// Check if option is active
 		if (Config::get('laravel-head::facebook.active'))
 		{
+			// Don't override a value set manually
 			if (!array_key_exists('property', $this->meta) || !array_key_exists('fb:page_id', $this->meta['property']))
 			{
 				$this->addOneMeta('property', 'fb:page_id', $page_id);
 			}
 
+			// Don't override a value set manually
 			if (!array_key_exists('property', $this->meta) || !array_key_exists('fb:app_id', $this->meta['property']))
 			{
 				$this->addOneMeta('property', 'fb:app_id', $app_id);
 			}
 
+			// Don't override a value set manually
 			if (!array_key_exists('property', $this->meta) || !array_key_exists('fb:admins', $this->meta['property']))
 			{
 				$this->addOneMeta('property', 'fb:admins', $admins);
 			}
 
+			// Don't override a value set manually + check if file exists
 			if (File::isFile(public_path($image) && !array_key_exists('property', $this->meta) || !array_key_exists('og:image', $this->meta['property'])))
 			{
 				$this->addOneMeta('property', 'og:image', asset($image));
 			}
 
+			// Don't override a value set manually
 			if (!array_key_exists('property', $this->meta) || !array_key_exists('og:url', $this->meta['property']))
 			{
 				$this->addOneMeta('property', 'og:url', URL::current());
 			}
 
+			// Don't override a value set manually
 			if (!array_key_exists('property', $this->meta) || !array_key_exists('og:type', $this->meta['property']))
 			{
 				$this->addOneMeta('property', 'og:type', 'website');
 			}
 
+			// Don't override a value set manually
 			if (!array_key_exists('property', $this->meta) || !array_key_exists('og:site_name', $this->meta['property']))
 			{
 				$this->addOneMeta('property', 'og:site_name', $sitename);
 			}
 
+			// Don't override a value set manually
 			if (!array_key_exists('property', $this->meta) || !array_key_exists('og:title', $this->meta['property']))
 			{
 				$this->addOneMeta('property', 'og:title', $title);
 			}
 
+			// Don't override a value set manually
 			if (!array_key_exists('property', $this->meta) || !array_key_exists('og:description', $this->meta['property']))
 			{
 				$this->addOneMeta('property', 'og:description', $description);
 			}
 		}
 
+		// Option is inactive
 		else
 		{
 			$this->killFacebook();
 		}
 	}
 
-	public function doFacebook()
-	{
-		Config::set('laravel-head::facebook.active', true);
-	}
-
-	public function noFacebook()
-	{
-		Config::set('laravel-head::facebook.active', false);
-	}
-
+	/**
+	 * Remove all Open Graph tags set manually.
+	 *
+	 * @return void
+	 */ 
 	protected function killFacebook()
 	{
 		foreach ($this->meta as $type => $val)
@@ -321,69 +543,102 @@ class LaravelHead {
 		}
 	}
 
+	/**
+	 * Activate Open Graph for the current request.
+	 *
+	 * @return void
+	 */
+	public function doFacebook()
+	{
+		Config::set('laravel-head::facebook.active', true);
+	}
+
+	/**
+	 * Deactivate Open Graph for the current request.
+	 *
+	 * @return void
+	 */
+	public function noFacebook()
+	{
+		Config::set('laravel-head::facebook.active', false);
+	}
+
+	/**
+	 * Register Twitter Card meta tags.
+	 *
+	 * @return void
+	 */ 
 	protected function addTwitter()
 	{
+		// Get value for title tag
 		$title = $this->renderTitle();
 
-		$description = $this->description;
+		// Get value of description
+		$description = ($this->description) ? $this->description : Config::get('laravel-head::description');
 
+		// Get Default values in config file
 		$image = Config::get('laravel-head::twitter.image');
-
 		$site = Config::get('laravel-head::twitter.site');
-
 		$creator = Config::get('laravel-head::twitter.creator');
 
+		// Check if option is active
 		if (Config::get('laravel-head::twitter.active'))
 		{
-			$this->addOneMeta('name', 'twitter:card', 'summary');
+			// Register default tag but don't override a value set manually
+			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:card', $this->meta['name']))
+			{
+				$this->addOneMeta('name', 'twitter:card', 'summary');
+			}
 
+			// Don't override a value set manually
 			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:title', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'twitter:title', $title);
 			}
 
+			// Don't override a value set manually
 			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:description', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'twitter:description', $description);
 			}
 
+			// Don't override a value set manually + check if file exists
 			if (File::isFile(public_path($image)) && (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:image:src', $this->meta['name'])))
 			{
 				$this->addOneMeta('name', 'twitter:image:src', asset($image));
 			}
 
+			// Don't override a value set manually
 			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:site', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'twitter:site', $site);
 			}
 
+			// Don't override a value set manually
 			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:creator', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'twitter:creator', $creator);
 			}
 
+			// Don't override a value set manually
 			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:url', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'twitter:url', URL::current());
 			}
 		}
 
+		// Option is inactive
 		else
 		{
 			$this->killTwitter();
 		}
 	}
 
-	public function doTwitter()
-	{
-		Config::set('laravel-head::twitter.active', true);
-	}
-
-	public function noTwitter()
-	{
-		Config::set('laravel-head::twitter.active', false);
-	}
-
+	/**
+	 * Remove all Twitter Card tags set manually.
+	 *
+	 * @return void
+	 */ 
 	protected function killTwitter()
 	{
 		foreach ($this->meta as $type => $val)
@@ -401,160 +656,140 @@ class LaravelHead {
 		}
 	}
 
-	public function addMisc($tag)
- 	{
- 		if (is_array($tag))
- 		{
- 			foreach ($tag as $line)
- 			{
- 				array_push($this->misc, $line);
- 			}
- 		}
-
- 		elseif (is_string($tag))
- 		{
- 			array_push($this->misc, $tag);
- 		}
- 	}
-
-	protected function tagMisc()
+	/**
+	 * Activate Twitter Card for the current request.
+	 *
+	 * @return void
+	 */
+	public function doTwitter()
 	{
+		Config::set('laravel-head::twitter.active', true);
+	}
+
+	/**
+	 * Deactivate Open Graph for the current request.
+	 *
+	 * @return void
+	 */
+	public function noTwitter()
+	{
+		Config::set('laravel-head::twitter.active', false);
+	}
+
+
+/* =============================
+	LINK TAGS
+ ============================ */
+
+ 	/**
+	 * Render all link tags.
+	 *
+	 * @return string
+	 */ 
+ 	protected function tagLink()
+	{
+		// Initialize string
 		$html = '';
 
-		$this->addShiv();
-
-		$this->addAnalytics();
-
- 		foreach ($this->misc as $line)
- 		{
- 			$html .= $line . "\n\t";
- 		}
-
- 		return $html;
-	}
-
- 	protected function addShiv()
- 	{
- 		if (Config::get('laravel-head::html5_shiv'))
- 		{
- 			$this->addMisc('<!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->');
- 		}
- 	}
-
- 	protected function addAnalytics()
- 	{
- 		$id = Config::get('laravel-head::analytics.id');
-
- 		$script = Config::get('laravel-head::analytics.script');
-
- 		if (App::environment('production') && Config::get('laravel-head::analytics.active'))
- 		{
- 			if ($script)
- 			{
- 				$this->addMisc('<script>'.$script.'</script>');
- 			}
-
- 			elseif ($id)
- 			{
- 				$this->addMisc("<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create', '".$id."', 'auto');ga('send', 'pageview');</script>");
- 			}
- 		}
- 	}
-
- 	public function doShiv()
-	{
-		Config::set('laravel-head::html5_shiv', true);
-	}
-
- 	public function noShiv()
-	{
-		Config::set('laravel-head::html5_shiv', false);
-	}
-
-	public function doAnalytics()
-	{
-		Config::set('laravel-head::analytics.active', true);
-	}
-
-	public function noAnalytics()
-	{
-		Config::set('laravel-head::analytics.active', false);
-	}
-
-	public function addLink($link = array())
-	{
-		$this->link = array_merge($this->link, $link);
-	}
-
-	public function addOneLink($rel, $href, $type = '', $attr = array(), $cond = '')
-	{
-		$this->addLink(array(array($rel, $href, $type, $attr, $cond)));
-	}
-
-	protected function tagLink()
-	{
-		$html = '';
-
+		// Add favicon link tags
 		$this->addFavicon();
 
+		// Add stylesheets link tags
 		$this->addStyleSheets();
 
 		foreach ($this->link as $link)
 		{
 			if (array_key_exists(1, $link) && $link[1] && array_key_exists(0, $link) && $link[0])
 			{
+				// Initialize starting string for conditional comments
 				$start_cond = '';
+				// Initialize ending string for conditional comments
 				$end_cond = '';
-
-				$attr = '';
+				// Initialize string for type attribute
 				$type = '';
+				// Initialize string for other attributes
+				$attr = '';
 
+				// Check for conditional comments
 				if ($array_key_exists(4, $link) && $link[4])
 				{
+					// Set starting string for conditional comments
 					$start_cond = '<!--[if '.$link[4].']>';
+					// Set ending string for conditional comments
 					$end_cond = '<![endif]-->';
 				}
 
+				// Check for attributes
 				if (array_key_exists(3, $link) && is_array($link[3]))
 				{
 					foreach ($link[3] as $name => $content)
 					{
+						// Check if values are not empty
 						if ($name && $content)
 						{
+							// Set strings for each attribute
 							$attr .= ' '.$name.'="'.$content.'"';
 						}
 					}
 				}
 
+				// Check for type attribute
 				if (array_key_exists(2, $link) && $link[2])
 				{
+					// Set string for type attribute
 					$type = ' type="'.$link[2].'"';
 				}
 
+				// Return tag for each registered link
 				$html .= $start_cond.'<link rel="'.$link[0].'" href="'.$link[1].'"'.$type.$attr.'>'.$end_cond . "\n\t";
 			}
 		}
 
+		// Return complete string
 		return $html;
 	}
 
-	public function setFavicon($favicon)
+	/**
+	 * Register several link tags.
+	 *
+	 * @return void
+	 */ 
+	public function addLink($link = array())
 	{
-		$this->favicon = $favicon;
+		$this->link = array_merge($this->link, $link);
 	}
 
+	/**
+	 * Register only one link tag.
+	 *
+	 * @return void
+	 */ 
+	public function addOneLink($rel, $href, $type = '', $attr = array(), $cond = '')
+	{
+		$this->addLink(array(array($rel, $href, $type, $attr, $cond)));
+	}
+
+	/**
+	 * Register link tags for favicon.
+	 *
+	 * @return void
+	 */ 
 	protected function addFavicon()
 	{
+		// Get the default value in config file if not manually defined
 		$favicon = ($this->favicon) ? $this->favicon : Config::get('laravel-head::favicon');
 
+		// Check if value is not empty
 		if ($favicon)
 		{
+			// Check if .ico file exists
 			if (File::exists(public_path($favicon.'.ico')))
 			{
 				$this->addOneLink('shortcut icon', asset($favicon.'.ico'));
 				$this->addOneLink('icon', asset($favicon.'.ico'), 'image/x-icon');
 			}
 
+			// Check if .png file exists
 			if (File::exists(public_path($favicon.'.png')))
 			{
 				$this->addOneLink('icon', asset($favicon.'.png'), 'image/png');
@@ -562,6 +797,98 @@ class LaravelHead {
 		}
 	}
 
+	/**
+	 * Manually set a value for favicon.
+	 *
+	 * @return void
+	 */ 
+	public function setFavicon($favicon)
+	{
+		$this->favicon = $favicon;
+	}
+
+	/**
+	 * Register link tags for stylesheets.
+	 *
+	 * @return void
+	 */ 
+	protected function addStyleSheets()
+	{
+		// Initialize string for .css path
+		$path = '';
+
+		// Get .css path if defined in config file
+		if (Config::get('laravel-head::assets.paths.css'))
+		{
+			$path = Config::get('laravel-head::assets.paths.css') . '/';
+		}
+
+		foreach ($this->stylesheets as $file => $options)
+		{
+			// Set default value for median attribute
+			$media = 'all';
+
+			// Set default value for conditional comments
+			$cond = '';
+
+			// Check in config file if stylesheet is an external resource
+			$cdn = Config::get('laravel-head::assets.cdn.'.$file);
+
+			// Initialize string for file's url
+			$href = '';
+
+			// No conditional comment
+			if (is_string($options) && $options)
+			{
+				$media = $options;
+			}
+
+			// Conditional comments are defined
+			elseif(is_array($options))
+			{
+				// Check if value is not empty
+				if (array_key_exists(1, $options) && $options[1])
+				{
+					// Get value for conditional comments
+					$cond = $options[1];
+				}
+
+				// Check if value is not empty
+				if (array_key_exists(0, $options) && $options[0])
+				{
+					// Get value for media attribute
+					$media = $options[0];
+				}
+			}
+
+			// Stylesheet is an external resource
+			if ($cdn)
+			{
+				// Get file's url
+				$href = $cdn;
+			}
+
+			// Stylesheet is a local resources + check if file exists
+			elseif (File::exists(public_path($path.$file.'.css')))
+			{
+				// Get file's url
+				$href = asset($path.$file.'.css');
+			}
+
+			// Check if url is not empty
+			if ($href)
+			{
+				// Register link tag for this stylesheet
+				$this->addOneLink('stylesheet', $href, '', array('media' => $media), $cond);
+			}
+		}
+	}
+
+	/**
+	 * Register several stylesheets.
+	 *
+	 * @return void
+	 */ 
 	public function addCss($css = array())
 	{
 		foreach ($css as $file => $options)
@@ -570,65 +897,109 @@ class LaravelHead {
 		}
 	}
 
+	/**
+	 * Register only one stylesheet.
+	 *
+	 * @return void
+	 */ 
 	public function addOneCss($file, $media = '', $cond = '')
 	{
 		$this->addCss(array($file => array($media, $cond)));
 	}
 
-	protected function addStyleSheets()
+/* =============================
+	SCRIPTS
+ ============================ */
+
+ 	/**
+	 * Render all scripts.
+	 *
+	 * @return string
+	 */ 
+	protected function tagScript()
 	{
+		// Initialize string
+		$html = '';
+
+		// Initialize string for .js path
 		$path = '';
 
-		if (Config::get('laravel-head::assets.paths.css'))
+		// Get .js path if defined in config file
+		if (Config::get('laravel-head::assets.paths.js'))
 		{
-			$path = Config::get('laravel-head::assets.paths.css') . '/';
+			$path = Config::get('laravel-head::assets.paths.js') . '/';
 		}
 
-		foreach ($this->stylesheets as $file => $options)
+		foreach ($this->scripts as $file => $options)
 		{
-			$media = 'all';
+			// Initialize starting string for conditional comments
+			$start_cond = '';
+			// Initialize ending string for conditional comments
+			$end_cond = '';
+			// Initialize string for load attribute
+			$load = '';
 
-			$cond = '';
-
+			// Check in config file if stylesheet is an external resource
 			$cdn = Config::get('laravel-head::assets.cdn.'.$file);
 
-			$href = '';
+			// Initialize string for file's url
+			$src = '';
 
-			if (is_string($options) && $options)
+			// No conditional comment
+			if (is_string($options) && ($options == 'defer' || $options == 'async'))
 			{
-				$media = $options;
+				$load = ' ' . $options;
 			}
 
+			// Conditional comments are defined
 			elseif(is_array($options))
 			{
+				// Check if value for conditional comments is not empty
 				if (array_key_exists(1, $options) && $options[1])
 				{
-					$cond = $options[1];
+					// Set starting string for conditional comments
+					$start_cond = '<!--[if '.$link[1].']>';
+					// Set ending string for conditional comments
+					$end_cond = '<![endif]-->';
 				}
 
-				if (array_key_exists(0, $options) && $options[0])
+				// Check if load attribute is defined and is valid
+				if (array_key_exists(0, $options) && ($options[0] == 'defer' || $options[0] == 'async'))
 				{
-					$media = $options[0];
+					$load = ' ' . $options[0];
 				}
 			}
 
+			// Script is an external resource
 			if ($cdn)
 			{
-				$href = $cdn;
+				// Get file's url
+				$src = $cdn;
 			}
 
-			elseif(File::exists(public_path($path.$file.'.css')))
+			// Script is a local resource + check if file exists
+			elseif(File::exists(public_path($path.$file.'.js')))
 			{
-				$href = asset($path.$file.'.css');
+				$src = asset($path.$file.'.js');
 			}
 
-			if ($href)
+			// Check if url is not empty
+			if ($src)
 			{
-				$this->addOneLink('stylesheet', $href, '', array('media' => $media), $cond);
+				// Return tag for each registered script
+				$html .= $start_cond.'<script src="'.$src.'"'.$load.'></script>'.$end_cond;
 			}
 		}
+
+		// Return complete string
+		return $html;
 	}
 
+	/**
+	 * Register several scripts.
+	 *
+	 * @return void
+	 */ 
 	public function addScript($script = array())
 	{
 		foreach ($script as $file => $options)
@@ -637,71 +1008,152 @@ class LaravelHead {
 		}
 	}
 
+	/**
+	 * Register only one script.
+	 *
+	 * @return void
+	 */ 
 	public function addOneScript($file, $load = '', $cond = '')
 	{
 		$this->addScript(array($file => array($load, $cond)));
 	}
 
-	protected function tagScript()
+
+/* =============================
+	SCRIPTS
+ ============================ */
+
+ 	/**
+	 * Render all additional items.
+	 *
+	 * @return string
+	 */ 
+	protected function tagMisc()
 	{
+		// Initialize string
 		$html = '';
 
-		$path = '';
+		// Add conditional script for IE compatibility with HTML5 if option is active
+		$this->addShiv();
 
-		if (Config::get('laravel-head::assets.paths.js'))
-		{
-			$path = Config::get('laravel-head::assets.paths.js') . '/';
-		}
+		// Add analytics script if option is active and mode is production
+		$this->addAnalytics();
 
-		foreach ($this->scripts as $file => $options)
-		{
-			$start_cond = '';
+ 		foreach ($this->misc as $line)
+ 		{
+ 			// Return each item
+ 			$html .= $line . "\n\t";
+ 		}
 
-			$end_cond = '';
+ 		// Return complete string
+ 		return $html;
+	}
 
-			$load = '';
+	/**
+	 * Register additional items.
+	 *
+	 * @return void
+	 */ 
+	public function addMisc($tag)
+ 	{
+ 		// Register several items
+ 		if (is_array($tag))
+ 		{
+ 			foreach ($tag as $line)
+ 			{
+ 				array_push($this->misc, $line);
+ 			}
+ 		}
 
-			$cdn = Config::get('laravel-head::assets.cdn.'.$file);
+ 		// Register only one item
+ 		elseif (is_string($tag))
+ 		{
+ 			array_push($this->misc, $tag);
+ 		}
+ 	}
 
-			$src = '';
+ 	/**
+	 * Register conditional script for IE compatibility with HTML5.
+	 *
+	 * @return void
+	 */ 
+ 	protected function addShiv()
+ 	{
+ 		// Check if option is active
+ 		if (Config::get('laravel-head::html5_shiv'))
+ 		{
+ 			$this->addMisc('<!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->');
+ 		}
+ 	}
 
-			if (is_string($options) && ($options == 'defer' || $options == 'async'))
-			{
-				$load = ' ' . $options;
-			}
+ 	/**
+	 * Activate IE compatibility for HTML5 for the current request.
+	 *
+	 * @return void
+	 */
+ 	public function doShiv()
+	{
+		Config::set('laravel-head::html5_shiv', true);
+	}
 
-			elseif(is_array($options))
-			{
-				if (array_key_exists(1, $options) && $options[1])
-				{
-					$start_cond = '<!--[if '.$link[1].']>';
-					$end_cond = '<![endif]-->';
-				}
+	/**
+	 * Deactivate IE compatibility for HTML5 for the current request.
+	 *
+	 * @return void
+	 */
+ 	public function noShiv()
+	{
+		Config::set('laravel-head::html5_shiv', false);
+	}
 
-				if (array_key_exists(0, $options) && ($options[0] == 'defer' || $options[0] == 'async'))
-				{
-					$load = ' ' . $options[0];
-				}
-			}
+	/**
+	 * Register analytics script.
+	 *
+	 * @return void
+	 */ 
+ 	protected function addAnalytics()
+ 	{
+ 		// Get Product ID value from config file
+ 		$id = Config::get('laravel-head::analytics.id');
 
-			if ($cdn)
-			{
-				$src = $cdn;
-			}
+ 		// Get optional script that should override default one
+ 		$script = Config::get('laravel-head::analytics.script');
 
-			elseif(File::exists(public_path($path.$file.'.js')))
-			{
-				$src = asset($path.$file.'.js');
-			}
+ 		// Check if mode is production and option is active
+ 		if (App::environment('production') && Config::get('laravel-head::analytics.active'))
+ 		{
+ 			// Override default script with the one set in config file
+ 			if ($script)
+ 			{
+ 				$this->addMisc('<script>'.$script.'</script>');
+ 			}
 
-			if ($href)
-			{
-				$html .= $start_cond.'<script src="'.$src.'"'.$load.'></script>'.$end_cond;
-				$this->addOneLink('stylesheet', $href, '', array('media' => $media), $cond);
-			}
-		}
+ 			// Register default script only if Product ID is defined
+ 			elseif ($id)
+ 			{
+ 				$this->addMisc("<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create', '".$id."', 'auto');ga('send', 'pageview');</script>");
+ 			}
+ 		}
+ 	}
 
-		return $html;
+ 	/**
+	 * Activate analytics script for the current request.
+	 *
+	 * @return void
+	 */
+	public function doAnalytics()
+	{
+		Config::set('laravel-head::analytics.active', true);
+	}
+
+	/**
+	 * Deactivate analytics script for the current request.
+	 *
+	 * @return void
+	 */
+	public function noAnalytics()
+	{
+		Config::set('laravel-head::analytics.active', false);
 	}
 
 }
