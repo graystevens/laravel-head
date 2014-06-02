@@ -14,7 +14,7 @@ This package automate and facilitate management of the `<head></head>` section f
  - Twitter Card.
  - Google's Universal Analytics.
 
- ## Installation
+## Installation
 
 Require this package in your composer.json and run composer update:
 
@@ -28,7 +28,7 @@ You need to publish the config of this package:
 
    $ php artisan config:publish gwnobots/laravel-head
 
-You do not need to add a Facade in app/config/app.php, as this package's Facade is already registered within its ServiceProvider (see posts from [Philip Brown](http://culttt.com/2013/06/24/creating-a-laravel-4-package/) and [Chris Fidao](http://fideloper.com/create-facade-laravel-4).
+You do not need to add a Facade in app/config/app.php, as this package's Facade is already registered within its ServiceProvider (see posts from [Philip Brown](http://culttt.com/2013/06/24/creating-a-laravel-4-package/) and [Chris Fidao](http://fideloper.com/create-facade-laravel-4)).
 
 ## Usage
 
