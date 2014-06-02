@@ -1,6 +1,6 @@
-Available methods for Laravel Head management package:
+#### Available methods for Laravel Head management package:
 
-Render all tags
+## Render all tags
 	<head>
 		<?php echo Head::render(); ?>
 		or
