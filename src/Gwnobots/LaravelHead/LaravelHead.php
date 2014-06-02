@@ -287,6 +287,11 @@ class LaravelHead {
 				$this->addOneMeta('property', 'og:description', $description);
 			}
 		}
+
+		else
+		{
+			$this->killFacebook();
+		}
 	}
 
 	public function doFacebook()
@@ -297,7 +302,10 @@ class LaravelHead {
 	public function noFacebook()
 	{
 		Config::set('laravel-head::facebook.active', false);
+	}
 
+	protected function killFacebook()
+	{
 		foreach ($this->meta as $type => $val)
 		{
 			if (array_key_exists('property', $this->meta))
@@ -329,35 +337,40 @@ class LaravelHead {
 		{
 			$this->addOneMeta('name', 'twitter:card', 'summary');
 
-			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:title', $this->meta['property']))
+			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:title', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'twitter:title', $title);
 			}
 
-			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:description', $this->meta['property']))
+			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:description', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'twitter:description', $description);
 			}
 
-			if (File::isFile(public_path($image)) && (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:image:src', $this->meta['property'])))
+			if (File::isFile(public_path($image)) && (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:image:src', $this->meta['name'])))
 			{
 				$this->addOneMeta('name', 'twitter:image:src', asset($image));
 			}
 
-			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:site', $this->meta['property']))
+			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:site', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'twitter:site', $site);
 			}
 
-			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:creator', $this->meta['property']))
+			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:creator', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'twitter:creator', $creator);
 			}
 
-			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:url', $this->meta['property']))
+			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:url', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'twitter:url', URL::current());
 			}
+		}
+
+		else
+		{
+			$this->killTwitter();
 		}
 	}
 
@@ -369,7 +382,10 @@ class LaravelHead {
 	public function noTwitter()
 	{
 		Config::set('laravel-head::twitter.active', false);
+	}
 
+	protected function killTwitter()
+	{
 		foreach ($this->meta as $type => $val)
 		{
 			if (array_key_exists('name', $this->meta))
