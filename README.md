@@ -228,7 +228,7 @@ You can set as many link tags as you need in your Routes or Controllers:
 
     Head::addLink(array(array('rel', 'href', 'type', array('attr' => 'value'), 'condition')));
 
-Type, Attributes and Condition are optionals. Condition stands for conditional comments (see [Stylesheets](https://github.com/gwnobots/laravel-head#stylesheets) for more explanation).
+Type, Attributes and Condition are optionals. Condition stands for conditional comments (see [Stylesheets](https://github.com/gwnobots/laravel-head#stylesheets) for more explanations).
 
 For example
 
