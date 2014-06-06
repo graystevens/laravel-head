@@ -1,6 +1,8 @@
 laravel-head
 ============
 
+[![License](https://poser.pugx.org/gwnobots/laravel-head/license.svg)](https://packagist.org/packages/gwnobots/laravel-head) [![Total Downloads](https://poser.pugx.org/gwnobots/laravel-head/downloads.svg)](https://packagist.org/packages/gwnobots/laravel-head)
+
 This package automate and facilitate management of the `<head></head>` section for your HTML5 layouts with Laravel. It provides utilities for:
  - Meta tags.
  - Link tags.
