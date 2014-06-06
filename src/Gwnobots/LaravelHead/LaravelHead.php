@@ -71,6 +71,14 @@ class LaravelHead {
 	protected $misc = array();
 
 
+	public function __construct()
+	{
+		// Initialize meta array
+		$this->meta['name'] = array();
+		$this->meta['http-equiv'] = array();
+		$this->meta['property'] = array();
+	}
+
 /* =============================
 	RENDER ALL TAGS IN HEAD
  ============================ */
@@ -213,7 +221,7 @@ class LaravelHead {
 	 */ 
 	public function doSitename()
 	{
-		Config::set('laravel-head::title.sitename', true);
+		Config::set('laravel-head::title.show_sitename', true);
 	}
 
 	/**
@@ -223,7 +231,7 @@ class LaravelHead {
 	 */ 
 	public function noSitename()
 	{
-		Config::set('laravel-head::title.sitename', false);
+		Config::set('laravel-head::title.show_sitename', false);
 	}
 
 	/**
@@ -305,17 +313,19 @@ class LaravelHead {
 		// Add all manually defined meta tags
 		foreach ($this->meta as $type => $val)
 		{
-			// Check if type is valid
-			if ($type == 'name' || $type == 'http-equiv' || $type == 'property')
+			foreach ($val as $value => $content)
 			{
-				foreach ($val as $value => $content)
+				// Check if values are defined
+				if ($value && $content)
 				{
-					// Check if values are defined
-					if ($value && $content)
+					// Link to a public file
+					if (File::isFile(public_path($content)))
 					{
-						// Return tag for each registered meta
-						$html .= '<meta '.$type.'="'.$value.'" content="'.$content.'">' . "\n\t";
+						$content = asset($content);
 					}
+
+					// Return tag for each registered meta
+					$html .= '<meta '.$type.'="'.$value.'" content="'.$content.'">' . "\n\t";
 				}
 			}
 		}
@@ -331,7 +341,10 @@ class LaravelHead {
 	 */ 
 	public function addMeta($meta = array())
 	{
-		$this->meta = array_merge($this->meta, $meta);
+		foreach ($meta as $type => $value)
+		{
+			$this->meta[$type] = array_merge($this->meta[$type], $value);
+		}
 	}
 
 	/**
@@ -369,7 +382,7 @@ class LaravelHead {
 		if (Config::get('laravel-head::ie_edge'))
 		{
 			// Don't override a value set manually
-			if (!array_key_exists('http-equiv', $this->meta) || !array_key_exists('X-UA-Compatible', $this->meta['http-equiv']))
+			if (!array_key_exists('X-UA-Compatible', $this->meta['http-equiv']))
 			{
 				$this->addOneMeta('http-equiv', 'X-UA-Compatible', 'IE=edge,chrome=1');
 			}
@@ -407,7 +420,7 @@ class LaravelHead {
 		if (Config::get('laravel-head::responsive'))
 		{
 			// Don't override a value set manually
-			if (!array_key_exists('name', $this->meta) || !array_key_exists('viewport', $this->meta['name']))
+			if (!array_key_exists('viewport', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'viewport', 'width=device-width, initial-scale=1.0');
 			}
@@ -460,55 +473,55 @@ class LaravelHead {
 		if (Config::get('laravel-head::facebook.active'))
 		{
 			// Don't override a value set manually
-			if (!array_key_exists('property', $this->meta) || !array_key_exists('fb:page_id', $this->meta['property']))
+			if (!array_key_exists('fb:page_id', $this->meta['property']))
 			{
 				$this->addOneMeta('property', 'fb:page_id', $page_id);
 			}
 
 			// Don't override a value set manually
-			if (!array_key_exists('property', $this->meta) || !array_key_exists('fb:app_id', $this->meta['property']))
+			if (!array_key_exists('fb:app_id', $this->meta['property']))
 			{
 				$this->addOneMeta('property', 'fb:app_id', $app_id);
 			}
 
 			// Don't override a value set manually
-			if (!array_key_exists('property', $this->meta) || !array_key_exists('fb:admins', $this->meta['property']))
+			if (!array_key_exists('fb:admins', $this->meta['property']))
 			{
 				$this->addOneMeta('property', 'fb:admins', $admins);
 			}
 
 			// Don't override a value set manually + check if file exists
-			if (File::isFile(public_path($image) && !array_key_exists('property', $this->meta) || !array_key_exists('og:image', $this->meta['property'])))
+			if (File::isFile(public_path($image)) && !array_key_exists('og:image', $this->meta['property']))
 			{
-				$this->addOneMeta('property', 'og:image', asset($image));
+				$this->addOneMeta('property', 'og:image', $image);
 			}
 
 			// Don't override a value set manually
-			if (!array_key_exists('property', $this->meta) || !array_key_exists('og:url', $this->meta['property']))
+			if (!array_key_exists('og:url', $this->meta['property']))
 			{
 				$this->addOneMeta('property', 'og:url', URL::current());
 			}
 
 			// Don't override a value set manually
-			if (!array_key_exists('property', $this->meta) || !array_key_exists('og:type', $this->meta['property']))
+			if (!array_key_exists('og:type', $this->meta['property']))
 			{
 				$this->addOneMeta('property', 'og:type', 'website');
 			}
 
 			// Don't override a value set manually
-			if (!array_key_exists('property', $this->meta) || !array_key_exists('og:site_name', $this->meta['property']))
+			if (!array_key_exists('og:site_name', $this->meta['property']))
 			{
 				$this->addOneMeta('property', 'og:site_name', $sitename);
 			}
 
 			// Don't override a value set manually
-			if (!array_key_exists('property', $this->meta) || !array_key_exists('og:title', $this->meta['property']))
+			if (!array_key_exists('og:title', $this->meta['property']))
 			{
 				$this->addOneMeta('property', 'og:title', $title);
 			}
 
 			// Don't override a value set manually
-			if (!array_key_exists('property', $this->meta) || !array_key_exists('og:description', $this->meta['property']))
+			if (!array_key_exists('og:description', $this->meta['property']))
 			{
 				$this->addOneMeta('property', 'og:description', $description);
 			}
@@ -530,14 +543,11 @@ class LaravelHead {
 	{
 		foreach ($this->meta as $type => $val)
 		{
-			if (array_key_exists('property', $this->meta))
+			foreach ($val as $value => $content)
 			{
-				foreach ($val as $value => $content)
+				if (starts_with($value, 'og:') || starts_with($value, 'fb:'))
 				{
-					if (starts_with($value, 'og:') || starts_with($value, 'fb:'))
-					{
-						$this->meta['property'] = array_except($this->meta['property'], array($value));
-					}
+					$this->meta['property'] = array_except($this->meta['property'], array($value));
 				}
 			}
 		}
@@ -585,43 +595,43 @@ class LaravelHead {
 		if (Config::get('laravel-head::twitter.active'))
 		{
 			// Register default tag but don't override a value set manually
-			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:card', $this->meta['name']))
+			if (!array_key_exists('twitter:card', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'twitter:card', 'summary');
 			}
 
 			// Don't override a value set manually
-			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:title', $this->meta['name']))
+			if (!array_key_exists('twitter:title', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'twitter:title', $title);
 			}
 
 			// Don't override a value set manually
-			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:description', $this->meta['name']))
+			if (!array_key_exists('twitter:description', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'twitter:description', $description);
 			}
 
 			// Don't override a value set manually + check if file exists
-			if (File::isFile(public_path($image)) && (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:image:src', $this->meta['name'])))
+			if (File::isFile(public_path($image)) && !array_key_exists('twitter:image:src', $this->meta['name']))
 			{
-				$this->addOneMeta('name', 'twitter:image:src', asset($image));
+				$this->addOneMeta('name', 'twitter:image:src', $image);
 			}
 
 			// Don't override a value set manually
-			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:site', $this->meta['name']))
+			if (!array_key_exists('twitter:site', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'twitter:site', $site);
 			}
 
 			// Don't override a value set manually
-			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:creator', $this->meta['name']))
+			if (!array_key_exists('twitter:creator', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'twitter:creator', $creator);
 			}
 
 			// Don't override a value set manually
-			if (!array_key_exists('name', $this->meta) || !array_key_exists('twitter:url', $this->meta['name']))
+			if (!array_key_exists('twitter:url', $this->meta['name']))
 			{
 				$this->addOneMeta('name', 'twitter:url', URL::current());
 			}
@@ -643,14 +653,11 @@ class LaravelHead {
 	{
 		foreach ($this->meta as $type => $val)
 		{
-			if (array_key_exists('name', $this->meta))
+			foreach ($val as $value => $content)
 			{
-				foreach ($val as $value => $content)
+				if (starts_with($value, 'twitter:') || starts_with($value, 'twitter:'))
 				{
-					if (starts_with($value, 'twitter:') || starts_with($value, 'twitter:'))
-					{
-						$this->meta['name'] = array_except($this->meta['name'], array($value));
-					}
+					$this->meta['name'] = array_except($this->meta['name'], array($value));
 				}
 			}
 		}
@@ -711,7 +718,7 @@ class LaravelHead {
 				$attr = '';
 
 				// Check for conditional comments
-				if ($array_key_exists(4, $link) && $link[4])
+				if (array_key_exists(4, $link) && $link[4])
 				{
 					// Set starting string for conditional comments
 					$start_cond = '<!--[if '.$link[4].']>';
@@ -958,7 +965,7 @@ class LaravelHead {
 				if (array_key_exists(1, $options) && $options[1])
 				{
 					// Set starting string for conditional comments
-					$start_cond = '<!--[if '.$link[1].']>';
+					$start_cond = '<!--[if '.$options[1].']>';
 					// Set ending string for conditional comments
 					$end_cond = '<![endif]-->';
 				}
@@ -987,7 +994,7 @@ class LaravelHead {
 			if ($src)
 			{
 				// Return tag for each registered script
-				$html .= $start_cond.'<script src="'.$src.'"'.$load.'></script>'.$end_cond;
+				$html .= $start_cond.'<script src="'.$src.'"'.$load.'></script>'.$end_cond . "\n\t";
 			}
 		}
 

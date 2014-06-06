@@ -203,7 +203,7 @@ return array(
 
 	'analytics' => array(
 
-		'active' => false,
+		'active' => true,
 
 		'id' => '',
 

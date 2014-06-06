@@ -300,7 +300,7 @@ Load only accept blank, 'defer' or 'async' as values. Load and condition are opt
 
 You can automatically add new Google's Universal Analytics at the end of the `<head></head>` section by setting analytics' active to true in config.php. Don't forget to add your Product ID. The script will not be displayed if not in production mode. By default, Universal Analytics script load asynchronously.
 
-You can also override the script by filling analytics' script in config.php, for example if you use custom methods, or another service provider: paste the complete script, including the `<script></script>` tags.
+You can also override the script by filling analytics' script in config.php, for example if you use custom methods, or another service provider: paste the complete script without the `<script></script>` tags.
 
 You can de|activate the script for current requests with:
 
