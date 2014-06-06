@@ -18,5 +18,8 @@
             "Gwnobots\\LaravelHead\\": "src/"
         }
     },
+    "config": {
+        "preferred-install": "dist"
+    },
     "minimum-stability": "stable"
 }
