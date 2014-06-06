@@ -18,7 +18,7 @@
             "src/migrations"
         ],
         "psr-0": {
-            "Gwnobots\\LaravelHead\\": "src/"
+            "Gwnobots\\LaravelHead": "src/"
         }
     },
     "minimum-stability": "stable"
