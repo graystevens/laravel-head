@@ -197,7 +197,8 @@ return array(
 	| The script will never be displayed if not in production mode.
 	|
 	| You can also override default script, for example if you have custom methods,
-	| or for a script of another service provider.
+	| or for a script of another service provider. Paste it without <script>
+	| </script> tag.
 	|
 	*/
 

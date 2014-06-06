@@ -71,6 +71,10 @@ class LaravelHead {
 	protected $misc = array();
 
 
+/* =============================
+	CONSTRUCTOR
+ ============================ */
+
 	public function __construct()
 	{
 		// Initialize meta array
@@ -78,6 +82,7 @@ class LaravelHead {
 		$this->meta['http-equiv'] = array();
 		$this->meta['property'] = array();
 	}
+
 
 /* =============================
 	RENDER ALL TAGS IN HEAD
