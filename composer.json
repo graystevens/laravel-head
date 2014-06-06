@@ -1,7 +1,7 @@
 {
     "name": "gwnobots/laravel-head",
     "description": "Customize and automate head section of your layouts for Laravel",
-    "keywords": ["laravel", "head section", "layout", "html5", "meta tags", "stylesheets", "scripts", "facebook", "twitter", "analytics"],
+    "keywords": ["laravel", "layout", "html5", "meta", "stylesheets", "scripts", "facebook", "twitter", "analytics"],
     "license": "MIT",
     "authors": [
         {
