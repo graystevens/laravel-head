@@ -127,7 +127,7 @@ For example
     Head::addMeta(array(
     	'name' => array(
     		'copyright' => 'My Company',
-    		'author' => 'Me',,
+    		'author' => 'Me',
     	),
     	'http-equiv' => array(
     		'pragma' => 'no-cache',
