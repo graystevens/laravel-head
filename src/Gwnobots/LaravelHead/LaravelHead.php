@@ -7,6 +7,13 @@ use URL;
  
 class LaravelHead {
 
+/**
+	 * Define current layout
+	 *
+	 * @var string
+	 */
+	protected $layout;
+
 	/**
 	 * The value for meta charset tag
 	 * 
@@ -75,12 +82,77 @@ class LaravelHead {
 	CONSTRUCTOR
  ============================ */
 
-	public function __construct()
+	function __construct()
 	{
 		// Initialize meta array
 		$this->meta['name'] = array();
 		$this->meta['http-equiv'] = array();
 		$this->meta['property'] = array();
+	}
+
+
+/* =============================
+	DEFINE CURRENT LAYOUT
+ ============================ */
+
+	/**
+	 * Set a value for layout to use other settings than default for current request.
+	 *
+	 * @return void
+	 */ 
+	public function setLayout($layout)
+	{
+		$this->layout = $layout;
+	}
+
+
+/* =============================
+	GET A CONFIG ITEM
+ ============================ */
+
+	/**
+	 * Get an item from config, returning default one if custom is null. Blank is considered as not null.
+	 *
+	 * @return string|bool
+	 */ 
+	protected function getConfig($item)
+	{
+		// Get config item value for a custom layout if it exists, even if blank
+		if (!is_null(Config::get('laravel-head::'.$this->layout.'.'.$item)))
+		{
+			return Config::get('laravel-head::'.$this->layout.'.'.$item);
+		}
+
+		// Fallback to default config item value if custom one does exist
+		else
+		{
+			return Config::get('laravel-head::'.$item);
+		}
+	}
+
+
+/* =============================
+	SET A CONFIG ITEM
+ ============================ */
+
+	/**
+	 * Set an item for current request in default config if custom is null, else in custom config.
+	 *
+	 * @return void
+	 */ 
+	protected function setConfig($item, $value)
+	{
+		// Set config item value for a custom layout if it exists
+		if (!is_null(Config::get('laravel-head::'.$this->layout.'.'.$item)))
+		{
+			return Config::set('laravel-head::'.$this->layout.'.'.$item, $value);
+		}
+
+		// Set default config item value if custom one does exist
+		else
+		{
+			return Config::set('laravel-head::'.$item, $value);
+		}
 	}
 
 
@@ -119,7 +191,7 @@ class LaravelHead {
 	protected function tagCharset()
 	{
 		// Get the default value in config file if not manually defined
-		$charset = ($this->charset) ? $this->charset : Config::get('laravel-head::charset');
+		$charset = ($this->charset) ? $this->charset : $this->getConfig('charset');
 		
 		// Don't return any tag if value is empty
 		if ($charset)
@@ -170,19 +242,19 @@ class LaravelHead {
 	protected function renderTitle()
 	{
 		// Get default value for site name
-		$sitename = Config::get('laravel-head::title.sitename');
+		$sitename = $this->getConfig('title.sitename');
 
 		// Value for title, site name if not defined
 		$title = ($this->title) ? $this->title : $sitename;
 		
 		// Get default separator value
-		$separator = Config::get('laravel-head::title.separator');
+		$separator = $this->getConfig('title.separator');
 
 		// Should title show site name
-		$show = Config::get('laravel-head::title.show_sitename');
+		$show = $this->getConfig('title.show_sitename');
 
 		// Get title position
-		$first = Config::get('laravel-head::title.first');
+		$first = $this->getConfig('title.first');
 
 		// Show site name in title
 		if ($show)
@@ -226,7 +298,7 @@ class LaravelHead {
 	 */ 
 	public function doSitename()
 	{
-		Config::set('laravel-head::title.show_sitename', true);
+		$this->setConfig('title.show_sitename', true);
 	}
 
 	/**
@@ -236,7 +308,7 @@ class LaravelHead {
 	 */ 
 	public function noSitename()
 	{
-		Config::set('laravel-head::title.show_sitename', false);
+		$this->setConfig('title.show_sitename', false);
 	}
 
 	/**
@@ -263,8 +335,9 @@ class LaravelHead {
 	 */
 	protected function tagDescription()
 	{
+
 		// Get the default value in config file if not manually defined
-		$description = ($this->description) ? $this->description : Config::get('laravel-head::description');
+		$description = ($this->description) ? $this->description : $this->getConfig('description');
 
 		// Don't return any tag if value is empty
 		if ($description)
@@ -384,7 +457,7 @@ class LaravelHead {
 	protected function addIeEdge()
 	{
 		// Check if option is active
-		if (Config::get('laravel-head::ie_edge'))
+		if ($this->getConfig('ie_edge'))
 		{
 			// Don't override a value set manually
 			if (!array_key_exists('X-UA-Compatible', $this->meta['http-equiv']))
@@ -401,7 +474,7 @@ class LaravelHead {
 	 */
 	public function doIeEdge()
 	{
-		Config::set('laravel-head::ie_edge', true);
+		$this->setConfig('ie_edge', true);
 	}
 
 	/**
@@ -411,7 +484,7 @@ class LaravelHead {
 	 */
 	public function noIeEdge()
 	{
-		Config::set('laravel-head::ie_edge', false);
+		$this->setConfig('ie_edge', false);
 	}
 
 	/**
@@ -422,7 +495,7 @@ class LaravelHead {
 	protected function addResponsive()
 	{
 		// Check if option is active
-		if (Config::get('laravel-head::responsive'))
+		if ($this->getConfig('responsive'))
 		{
 			// Don't override a value set manually
 			if (!array_key_exists('viewport', $this->meta['name']))
@@ -439,7 +512,7 @@ class LaravelHead {
 	 */
 	public function doResponsive()
 	{
-		Config::set('laravel-head::responsive', true);
+		$this->setConfig('responsive', true);
 	}
 
 	/**
@@ -449,7 +522,7 @@ class LaravelHead {
 	 */
 	public function noResponsive()
 	{
-		Config::set('laravel-head::responsive', false);
+		$this->setConfig('responsive', false);
 	}
 
 	/**
@@ -460,22 +533,22 @@ class LaravelHead {
 	protected function addFacebook()
 	{
 		// Get default Site Name
-		$sitename = Config::get('laravel-head::title.sitename');
+		$sitename = $this->getConfig('title.sitename');
 
 		// Get value for title tag
 		$title = $this->renderTitle();
 
 		// Get value of description
-		$description = ($this->description) ? $this->description : Config::get('laravel-head::description');
+		$description = ($this->description) ? $this->description : $this->getConfig('description');
 
 		// Get Default values in config file
-		$admins = Config::get('laravel-head::facebook.admins');
-		$page_id =Config::get('laravel-head::facebook.page_id');
-		$app_id = Config::get('laravel-head::facebook.app_id');
-		$image = Config::get('laravel-head::facebook.image');
+		$admins = $this->getConfig('facebook.admins');
+		$page_id = $this->getConfig('facebook.page_id');
+		$app_id = $this->getConfig('facebook.app_id');
+		$image = $this->getConfig('facebook.image');
 
 		// Check if option is active
-		if (Config::get('laravel-head::facebook.active'))
+		if ($this->getConfig('facebook.active'))
 		{
 			// Don't override a value set manually
 			if (!array_key_exists('fb:page_id', $this->meta['property']))
@@ -565,7 +638,7 @@ class LaravelHead {
 	 */
 	public function doFacebook()
 	{
-		Config::set('laravel-head::facebook.active', true);
+		$this->setConfig('facebook.active', true);
 	}
 
 	/**
@@ -575,7 +648,7 @@ class LaravelHead {
 	 */
 	public function noFacebook()
 	{
-		Config::set('laravel-head::facebook.active', false);
+		$this->getConfig('facebook.active', false);
 	}
 
 	/**
@@ -589,15 +662,15 @@ class LaravelHead {
 		$title = $this->renderTitle();
 
 		// Get value of description
-		$description = ($this->description) ? $this->description : Config::get('laravel-head::description');
+		$description = ($this->description) ? $this->description : $this->getConfig('description');
 
 		// Get Default values in config file
-		$image = Config::get('laravel-head::twitter.image');
-		$site = Config::get('laravel-head::twitter.site');
-		$creator = Config::get('laravel-head::twitter.creator');
+		$image = $this->getConfig('twitter.image');
+		$site = $this->getConfig('twitter.site');
+		$creator = $this->getConfig('twitter.creator');
 
 		// Check if option is active
-		if (Config::get('laravel-head::twitter.active'))
+		if ($this->getConfig('twitter.active'))
 		{
 			// Register default tag but don't override a value set manually
 			if (!array_key_exists('twitter:card', $this->meta['name']))
@@ -675,7 +748,7 @@ class LaravelHead {
 	 */
 	public function doTwitter()
 	{
-		Config::set('laravel-head::twitter.active', true);
+		$this->setConfig('twitter.active', true);
 	}
 
 	/**
@@ -685,7 +758,7 @@ class LaravelHead {
 	 */
 	public function noTwitter()
 	{
-		Config::set('laravel-head::twitter.active', false);
+		$this->setConfig('twitter.active', false);
 	}
 
 
@@ -789,7 +862,7 @@ class LaravelHead {
 	protected function addFavicon()
 	{
 		// Get the default value in config file if not manually defined
-		$favicon = ($this->favicon) ? $this->favicon : Config::get('laravel-head::favicon');
+		$favicon = ($this->favicon) ? $this->favicon : $this->getConfig('favicon');
 
 		// Check if value is not empty
 		if ($favicon)
@@ -830,9 +903,9 @@ class LaravelHead {
 		$path = '';
 
 		// Get .css path if defined in config file
-		if (Config::get('laravel-head::assets.paths.css'))
+		if ($this->getConfig('assets.paths.css'))
 		{
-			$path = Config::get('laravel-head::assets.paths.css') . '/';
+			$path = $this->getConfig('assets.paths.css') . '/';
 		}
 
 		foreach ($this->stylesheets as $file => $options)
@@ -844,7 +917,7 @@ class LaravelHead {
 			$cond = '';
 
 			// Check in config file if stylesheet is an external resource
-			$cdn = Config::get('laravel-head::assets.cdn.'.$file);
+			$cdn = $this->getConfig('assets.cdn.'.$file);
 
 			// Initialize string for file's url
 			$href = '';
@@ -937,9 +1010,9 @@ class LaravelHead {
 		$path = '';
 
 		// Get .js path if defined in config file
-		if (Config::get('laravel-head::assets.paths.js'))
+		if ($this->getConfig('assets.paths.js'))
 		{
-			$path = Config::get('laravel-head::assets.paths.js') . '/';
+			$path = $this->getConfig('assets.paths.js') . '/';
 		}
 
 		foreach ($this->scripts as $file => $options)
@@ -952,7 +1025,7 @@ class LaravelHead {
 			$load = '';
 
 			// Check in config file if stylesheet is an external resource
-			$cdn = Config::get('laravel-head::assets.cdn.'.$file);
+			$cdn = $this->getConfig('assets.cdn.'.$file);
 
 			// Initialize string for file's url
 			$src = '';
@@ -1092,7 +1165,7 @@ class LaravelHead {
  	protected function addShiv()
  	{
  		// Check if option is active
- 		if (Config::get('laravel-head::html5_shiv'))
+ 		if ($this->getConfig('html5_shiv'))
  		{
  			$this->addMisc('<!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->');
  		}
@@ -1105,7 +1178,7 @@ class LaravelHead {
 	 */
  	public function doShiv()
 	{
-		Config::set('laravel-head::html5_shiv', true);
+		$this->setConfig('html5_shiv', true);
 	}
 
 	/**
@@ -1115,7 +1188,7 @@ class LaravelHead {
 	 */
  	public function noShiv()
 	{
-		Config::set('laravel-head::html5_shiv', false);
+		$this->setConfig('html5_shiv', false);
 	}
 
 	/**
@@ -1126,13 +1199,13 @@ class LaravelHead {
  	protected function addAnalytics()
  	{
  		// Get Product ID value from config file
- 		$id = Config::get('laravel-head::analytics.id');
+ 		$id = $this->getConfig('analytics.id');
 
  		// Get optional script that should override default one
- 		$script = Config::get('laravel-head::analytics.script');
+ 		$script = $this->getConfig('analytics.script');
 
  		// Check if mode is production and option is active
- 		if (App::environment('production') && Config::get('laravel-head::analytics.active'))
+ 		if (App::environment('production') && $this->getConfig('analytics.active'))
  		{
  			// Override default script with the one set in config file
  			if ($script)
@@ -1155,7 +1228,7 @@ class LaravelHead {
 	 */
 	public function doAnalytics()
 	{
-		Config::set('laravel-head::analytics.active', true);
+		$this->setConfig('analytics.active', true);
 	}
 
 	/**
@@ -1165,7 +1238,7 @@ class LaravelHead {
 	 */
 	public function noAnalytics()
 	{
-		Config::set('laravel-head::analytics.active', false);
+		$this->setConfig('analytics.active', false);
 	}
 
 }
