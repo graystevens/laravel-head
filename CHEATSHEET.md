@@ -7,6 +7,9 @@
 		{{ Head::render() }}
 	</head>
 
+###### Set a layout
+	Head::setLayout('layout');
+
 ###### Encoding
 	Head::setCharset('charset');
 
