@@ -134,7 +134,7 @@ An easy way to automatically manage custom layouts with Laravel's utilities is t
         }
     }
 
-Like this, when setting a layout in your Controllers with `protected $layout = 'mylayout';`, you will also automatically register your layout this package's methods.
+Like this, when setting a layout in your Controllers with `protected $layout = 'mylayout';`, you will also automatically register your layout for this package's methods.
 
 #### Special utilities
 
