@@ -218,12 +218,12 @@ return array(
 	| Custom layouts
 	|--------------------------------------------------------------------------
 	|
-	| Here you can override any setting for a particular layout. Add an array
+	| Here you can override any settings for a particular layout. Add an array
 	| named as your layout and fill it with values you want to override.
 	| 
 	| You can add as many layouts as you like. A blank value will be considered
 	| as not null. You just need to add the settings you want to override, not
-	| not the entire default array: if a config value does not appear in the
+	| the entire default array: if a config value does not appear in the
 	| custom array, default values defined previously will be used.
 	| 
 	| You need to respect path structure if your layouts are in a particular

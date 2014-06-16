@@ -73,6 +73,69 @@ You can also remove a tag by filling it with blank, for example:
 
     Head::setFavicon('');
 
+#### Multiple layouts
+
+###### Settings
+
+You can manage different settings for the `<head></head>` section with as many layouts as you need in package's config.php. You can override one ore several settings by adding an array at the end of the config file (see also comments in config.php), like:
+
+    'mylayout' => array(
+        'charset' => 'ISO-8859-1',
+        'twitter' => array(
+            'image' => 'an-image.jpg',
+        ),
+    ),
+
+Here you would override default values only for meta charset and twitter card image for the layout called 'mylayout'. Default values will be used for other settings.
+
+You should also respect path structure:
+
+    'layouts' => array(
+        'custom' => array(
+            'charset' => 'ISO-8859-1',
+        ),
+    ),
+
+In this example, you will override meta charset default value for a layout named 'custom' in the `app/views/layouts` directory.
+
+###### Register a custom layout
+
+To make use of custom settings, you need to tell your app that you are using a specific layout which may call other settings than just default ones.
+
+In your Controller or Blade layout, call:
+
+    Head::setLayout('mycustomlayout');
+
+An easy way to automatically manage custom layouts with Laravel's utilities is to add a constructor in BaseController.php like:
+
+    <?php
+
+    class BaseController extends Controller {
+
+        public function __construct()
+        {
+            if ( ! is_null($this->layout))
+            {
+                Head::setLayout($this->layout);
+            }
+        }
+    
+        /**
+        * Setup the layout used by the controller.
+        *
+        * @return void
+        */
+        protected function setupLayout()
+        {   
+            if ( ! is_null($this->layout))
+            {
+                $this->layout = View::make($this->layout);
+            }
+        }
+    }
+
+Like this, when setting a layout in your Controllers with `protected $layout = 'mylayout';`, you will also automatically register your layout this package's methods.
+
 #### Special utilities
 
 ###### Search engines
