@@ -164,7 +164,7 @@ class LaravelHead {
 	 * Render all tags manually or automatically defined for filling head section.
 	 * Empty values don't return any tag.
 	 *
-	 * @return void
+	 * @return string
 	 */ 
 	public function render()
 	{
