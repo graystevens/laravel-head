@@ -1167,7 +1167,7 @@ class LaravelHead {
  		// Check if option is active
  		if ($this->getConfig('html5_shiv'))
  		{
- 			$this->addMisc('<!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->');
+ 			$this->addMisc('<!--[if lt IE 9]><script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->');
  		}
  	}
 
