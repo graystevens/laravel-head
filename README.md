@@ -26,7 +26,7 @@ After updating composer, add the ServiceProvider to the providers array in app/c
 
 And also add the `Head` facade to the same file, like so:
 
-	''Head' => 'Gwnobots\LaravelHead\LaravelHeadFacade',
+    ''Head' => 'graystevens\LaravelHead\LaravelHeadFacade',
 
 You need to publish the config of this package:
 
@@ -35,7 +35,7 @@ You need to publish the config of this package:
 
 ## Usage
 
-You can see a summary of all available methods in the [cheatsheet](https://github.com/gwnobots/laravel-head/blob/master/CHEATSHEET.md).
+You can see a summary of all available methods in the [cheatsheet](https://github.com/graystevens/laravel-head/blob/master/CHEATSHEET.md).
 
 #### Rendering
 
