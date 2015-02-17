@@ -26,7 +26,7 @@ After updating composer, add the ServiceProvider to the providers array in app/c
 
 And also add the `Head` facade to the same file, like so:
 
-    ''Head' => 'graystevens\LaravelHead\LaravelHeadFacade',
+    'Head' => 'graystevens\LaravelHead\LaravelHeadFacade',
 
 You need to publish the config of this package:
 
