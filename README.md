@@ -1,4 +1,4 @@
-laravel-head
+laravel-head (for Laravel 5)
 ============
 
 This package automate and facilitate management of the `<head></head>` section for your HTML5 layouts with Laravel. It provides utilities for:
@@ -24,11 +24,14 @@ After updating composer, add the ServiceProvider to the providers array in app/c
 
     'graystevens\LaravelHead\LaravelHeadServiceProvider',
 
+And also add the `Head` facade to the same file, like so:
+
+	''Head' => 'Gwnobots\LaravelHead\LaravelHeadFacade',
+
 You need to publish the config of this package:
 
 	$ php artisan vendor:publish
 
-You do not need to add an Alias in app/config/app.php, as it is already registered within the ServiceProvider (see posts from [Philip Brown](http://culttt.com/2013/06/24/creating-a-laravel-4-package/) and [Chris Fidao](http://fideloper.com/create-facade-laravel-4)).
 
 ## Usage
 
@@ -70,69 +73,6 @@ In package's config.php, you can set some default values like charset, sitename,
 You can also remove a tag by filling it with blank, for example:
 
     Head::setFavicon('');
-
-#### Multiple layouts
-
-###### Settings
-
-You can manage different settings for the `<head></head>` section with as many layouts as you need in package's config.php. You can override one ore several settings by adding an array at the end of the config file (see also comments in config.php), like:
-
-    'mylayout' => array(
-        'charset' => 'ISO-8859-1',
-        'twitter' => array(
-            'image' => 'an-image.jpg',
-        ),
-    ),
-
-Here you would override default values only for meta charset and twitter card image for the layout called 'mylayout'. Default values will be used for other settings.
-
-You should also respect path structure:
-
-    'layouts' => array(
-        'custom' => array(
-            'charset' => 'ISO-8859-1',
-        ),
-    ),
-
-In this example, you will override meta charset default value for a layout named 'custom' in the `app/views/layouts` directory.
-
-###### Register a custom layout
-
-To make use of custom settings, you need to tell your app that you are using a specific layout which may call other settings than just default ones.
-
-In your Controller or Blade layout, call:
-
-    Head::setLayout('mycustomlayout');
-
-An easy way to automatically manage custom layouts with Laravel's utilities is to add a constructor in BaseController.php like:
-
-    <?php
-
-    class BaseController extends Controller {
-
-        public function __construct()
-        {
-            if ( ! is_null($this->layout))
-            {
-                Head::setLayout($this->layout);
-            }
-        }
-    
-        /**
-        * Setup the layout used by the controller.
-        *
-        * @return void
-        */
-        protected function setupLayout()
-        {   
-            if ( ! is_null($this->layout))
-            {
-                $this->layout = View::make($this->layout);
-            }
-        }
-    }
-
-Like this, when setting a layout in your Controllers with `protected $layout = 'mylayout';`, you will also automatically register your layout for this package's methods.
 
 #### Special utilities
 
@@ -251,40 +191,6 @@ You can de|activate Twitter Card for current requests with:
 
 Deactivation will also remove Twitter Card's tags that you manually defined with the `Head::addMeta()` and `Head::addOneMeta()` methods.
 
-###### Overriding
-
-You can override any value of any meta tag by redeclaring it with the `Head::addMeta()` or the `Head::addOneMeta()` method. It will as well override default values set in config.php. For example, you can define a default value for a meta tag in the constructor of a Controller, and override it in one of its actions for a particular request like:
-
-    <?php
-
-    class FrontController extends BaseController {
-
-    	protected $layout = 'mylayout';
-
-    	function __construct()
-    	{
-    		Head::addOneMeta('name', 'author', 'Me');
-    	}
-
-    	public function index()
-    	{
-    		return View::make('home');
-    	}
-
-    	public function anotherPage()
-    	{
-    		Head::addOneMeta('name', 'author', 'Another Guy');
-    		return View::make('anotherpage');
-    	}
-
-    }
-
-It is possible to remove a meta tag for a particular request by filling it with blank, for example doing:
-
-    Head::addOneMeta('name', 'author', '');
-
-Overriding also works with special utilities like `<meta name="viewport">` or `<meta http-equiv="X-UA-Compatible">`, but not with `<meta name="description">` that works apart.
-
 #### Link tags
 
 You can set as many link tags as you need in your Routes or Controllers:
@@ -381,4 +287,4 @@ You can add any additional tags, or custom code like comments, at the end of the
 
 ## Cheat Sheet
 
-Go to a summary of all [available methods](https://github.com/gwnobots/laravel-head/blob/master/CHEATSHEET.md).
+Go to a summary of all [available methods](https://github.com/graystevens/laravel-head/blob/master/CHEATSHEET.md).
