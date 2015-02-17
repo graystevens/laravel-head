@@ -18,15 +18,15 @@ This package automate and facilitate management of the `<head></head>` section f
 
 Require this package in your composer.json and run composer update:
 
-    "gwnobots/laravel-head": "dev-master"
+    "graystevens/laravel-head": "dev-master"
 
 After updating composer, add the ServiceProvider to the providers array in app/config/app.php:
 
-    'Gwnobots\LaravelHead\LaravelHeadServiceProvider',
+    'graystevens\LaravelHead\LaravelHeadServiceProvider',
 
 You need to publish the config of this package:
 
-	$ php artisan config:publish gwnobots/laravel-head
+	$ php artisan vendor:publish
 
 You do not need to add an Alias in app/config/app.php, as it is already registered within the ServiceProvider (see posts from [Philip Brown](http://culttt.com/2013/06/24/creating-a-laravel-4-package/) and [Chris Fidao](http://fideloper.com/create-facade-laravel-4)).
 
@@ -44,7 +44,7 @@ To display all custom tags in the `<head></head>` section, simply add in your la
 
     // or with a blade layout
     <head>
-    	{{ Head::render() }}
+    	{!! Head::render() !!}
     </head>
 
 #### Basic settings

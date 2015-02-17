@@ -1,4 +1,4 @@
-<?php namespace Gwnobots\LaravelHead;
+<?php namespace graystevens\LaravelHead;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -18,7 +18,9 @@ class LaravelHeadServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
-		$this->package('gwnobots/laravel-head');
+        $this->publishes([
+            __DIR__.'/../../config/config.php' => config_path('laravel-head.php')
+        ]);
 	}
 
 	/**
@@ -28,16 +30,9 @@ class LaravelHeadServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
-		$this->app['laravel-head'] = $this->app->share(function($app)
-		{
-			return new LaravelHead;
-		});
-
-		$this->app->booting(function()
-		{
-			$loader = \Illuminate\Foundation\AliasLoader::getInstance();
-			$loader->alias('Head', 'Gwnobots\LaravelHead\LaravelHeadFacade');
-		});
+        $this->app['laravel-head'] = $this->app->share(function($app) {
+            return new LaravelHead(\Config::get('laravel-head'));
+        });
 	}
 
 	/**

@@ -1,4 +1,4 @@
-<?php namespace Gwnobots\LaravelHead;
+<?php namespace graystevens\LaravelHead;
 
 use App;
 use Config;
@@ -118,15 +118,15 @@ class LaravelHead {
 	protected function getConfig($item)
 	{
 		// Get config item value for a custom layout if it exists, even if blank
-		if (!is_null(Config::get('laravel-head::'.$this->layout.'.'.$item)))
+		if (!is_null(Config::get('laravel-head'.$this->layout.'.'.$item)))
 		{
-			return Config::get('laravel-head::'.$this->layout.'.'.$item);
+			return Config::get('laravel-head'.$this->layout.'.'.$item);
 		}
 
 		// Fallback to default config item value if custom one does exist
 		else
 		{
-			return Config::get('laravel-head::'.$item);
+			return Config::get('laravel-head'.$item);
 		}
 	}
 
@@ -143,15 +143,15 @@ class LaravelHead {
 	protected function setConfig($item, $value)
 	{
 		// Set config item value for a custom layout if it exists
-		if (!is_null(Config::get('laravel-head::'.$this->layout.'.'.$item)))
+		if (!is_null(Config::get('laravel-head'.$this->layout.'.'.$item)))
 		{
-			return Config::set('laravel-head::'.$this->layout.'.'.$item, $value);
+			return Config::set('laravel-head'.$this->layout.'.'.$item, $value);
 		}
 
 		// Set default config item value if custom one does exist
 		else
 		{
-			return Config::set('laravel-head::'.$item, $value);
+			return Config::set('laravel-head'.$item, $value);
 		}
 	}
 

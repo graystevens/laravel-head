@@ -4,7 +4,7 @@
 	<head>
 		<?php echo Head::render(); ?>
 		or
-		{{ Head::render() }}
+		{!! Head::render() !!}
 	</head>
 
 ###### Set a layout

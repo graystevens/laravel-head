@@ -1,8 +1,8 @@
-<?php namespace Gwnobots\LaravelHead;
+<?php namespace graystevens\LaravelHead;
  
 use Illuminate\Support\Facades\Facade;
  
-class LaravelHeadFacade extends Facade {
+class LaravelHeadFacade extends Facade  {
 
 	/**
 	 * Get the registered name of the component.
